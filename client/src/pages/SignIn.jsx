@@ -36,7 +36,12 @@ export default function SignIn() {
 
       if (res.ok) {
         dispatch(signInSuccess(data));
-        navigate('/');
+        //navigate('/');
+        if (data.isAdmin) {
+          navigate('/dashboard/?tab=dash');
+        } else {
+          navigate('/');
+        }
       }
     } catch (error) {
       dispatch(signInFailure(error.message));

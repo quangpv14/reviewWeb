@@ -7,7 +7,7 @@ export const test = (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
-  if (req.user.id !== req.params.userId) {
+  if (req.user.id !== req.params.userId && !req.user.isAdmin) {
     return next(errorHandler(403, 'You are not allowed to update this user'));
   }
 
@@ -164,6 +164,27 @@ export const updatePassword = async (req, res, next) => {
 
     const { password, ...rest } = updatedUser._doc;
     res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchUsers = async (req, res, next) => {
+  try {
+    const searchtext = req.query.search;
+    console.log(searchtext)
+    const query = {};
+
+    if (searchtext) {
+      query.$or = [
+        { username: { $regex: searchtext, $options: 'i' } },
+        { email: { $regex: searchtext, $options: 'i' } },
+        { fullname: { $regex: searchtext, $options: 'i' } },
+      ];
+    }
+
+    const users = await User.find(query);
+    res.status(200).json(users);
   } catch (error) {
     next(error);
   }

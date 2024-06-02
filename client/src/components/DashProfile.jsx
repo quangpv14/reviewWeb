@@ -33,7 +33,7 @@ const vietnamProvinces = [
 ];
 export default function DashProfile() {
   const { currentUser, error, loading } = useSelector((state) => state.user);
-  const formattedDate = new Date(currentUser.dateOfBirth).toISOString().split('T')[0];
+  const formattedDate = currentUser.dateOfBirth ? new Date(currentUser.dateOfBirth).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
@@ -317,7 +317,7 @@ export default function DashProfile() {
                 style={{ display: 'flex', alignItems: 'center', marginLeft: '30px', marginBottom: '18px' }}
               >
                 <label for="dateOfBirth" style={{ marginRight: '5px', width: '83px' }}> Date Birth</label>
-                <input type="date" id="dateOfBirth" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                <input type="date" id="dateOfBirth" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Select date"
                   defaultValue={formattedDate}
                   onChange={handleChangeDate} style={{ width: '180px' }}>

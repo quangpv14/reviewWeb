@@ -2,7 +2,7 @@ import { Alert, Button, Label, Spinner, TextInput, Select } from 'flowbite-react
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
-//import { Datepicker } from 'flowbite-datepicker/Datepicker';
+
 
 const vietnamProvinces = [
   'An Giang', 'Bà Rịa - Vũng Tàu', 'Bạc Liêu', 'Bắc Kạn', 'Bắc Giang', 'Bắc Ninh', 'Bến Tre', 'Bình Định', 'Bình Dương', 'Bình Phước',
@@ -36,6 +36,7 @@ function checkRegion(city, region) {
   return provinceList.includes(city) ? true : false;
 
 }
+
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
@@ -153,7 +154,7 @@ export default function SignUp() {
             <div>
               <div>
                 <Label htmlFor="dateOfBirth" value="Date of Birth" />
-                <input type="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                <input type="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Select date" value={formData.dateOfBirth} onChange={handleChangeDate}></input>
               </div>
             </div>

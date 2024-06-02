@@ -1,9 +1,12 @@
-import { Modal, Table, Button } from 'flowbite-react';
+import { Modal, Table, Button, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { IoSearchSharp, IoEyeSharp } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa";
 import { set } from 'mongoose';
+import CreatePost from '../pages/CreatePost';
 
 export default function DashPosts() {
   const { currentUser } = useSelector((state) => state.user);
@@ -11,6 +14,8 @@ export default function DashPosts() {
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -71,11 +76,36 @@ export default function DashPosts() {
     }
   };
 
+  const openDialog = () => setIsDialogOpen(true); // Function to open dialog
+  const closeDialog = () => setIsDialogOpen(false); // Function to close dialog
+
   return (
     <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      <h1 className='text-3xl font-semibold text-center my-7'>
-        All review posts
-      </h1>
+      <div>
+        <h1 className='text-3xl font-semibold text-center my-7'>
+          Management all review posts
+        </h1>
+      </div>
+
+      <div className='w-full'>
+        <div className='flex space-x-4 justify-between mb-5'>
+          <div className='flex space-x-4 justify-between mb-5'>
+            <TextInput type="text" placeholder="Filter" id="search" aria-label="Search" style={{ width: '280px' }} />
+            <Button>
+              <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
+              Search
+            </Button>
+          </div>
+          <div>
+            <Button className='text-white bg-green-700' onClick={openDialog}>
+              <FaPlus className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
+              Create post
+            </Button>
+          </div>
+          <CreatePost isOpen={isDialogOpen} onClose={closeDialog} />
+        </div>
+      </div>
+
       {currentUser.isAdmin && userPosts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md'>
@@ -88,6 +118,7 @@ export default function DashPosts() {
               <Table.HeadCell>
                 <span>Edit</span>
               </Table.HeadCell>
+              <Table.HeadCell> </Table.HeadCell>
             </Table.Head>
             {userPosts.map((post) => (
               <Table.Body className='divide-y'>
@@ -130,6 +161,15 @@ export default function DashPosts() {
                       to={`/update-post/${post._id}`}
                     >
                       <span>Edit</span>
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Link
+                      className='text-teal-500 hover:underline'
+                      to={`/post/${post.slug}`}
+
+                    >
+                      <IoEyeSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
                     </Link>
                   </Table.Cell>
                 </Table.Row>

@@ -73,7 +73,7 @@ export default function DashSidebar() {
                 icon={HiDocumentText}
                 as='div'
               >
-                Posts
+                Posts Management
               </Sidebar.Item>
             </Link>
           )}
@@ -85,7 +85,7 @@ export default function DashSidebar() {
                   icon={HiOutlineUserGroup}
                   as='div'
                 >
-                  Users
+                  Users Management
                 </Sidebar.Item>
               </Link>
               <Link to='/dashboard?tab=comments'>
