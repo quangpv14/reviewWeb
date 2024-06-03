@@ -2,7 +2,7 @@ import express from 'express';
 import { verifyToken } from '../utils/verifyUser.js';
 import {
     create, deletepost, getposts,
-    updatepost, getallposts, getallpostsbyuserid
+    updatepost, getallposts, getallpostsbyuserid, searchPosts
 } from '../controllers/post.controller.js';
 
 const router = express.Router();
@@ -13,5 +13,6 @@ router.get('/getallposts', getallposts)
 router.delete('/deletepost/:postId/:userId', verifyToken, deletepost)
 router.put('/updatepost/:postId/:userId', verifyToken, updatepost)
 router.get('/user/:userId', getallpostsbyuserid)
+router.get('/filterposts/search', searchPosts)
 
 export default router;

@@ -20,6 +20,6 @@ router.delete('/delete/:userId', verifyToken, deleteUser);
 router.post('/signout', signout);
 router.get('/getusers', verifyToken, getUsers);
 router.get('/:userId', getUser);
-router.get('/searchusers', searchUsers)
+router.get('/filterusers/search', searchUsers)
 
 export default router;

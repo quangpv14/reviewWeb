@@ -171,8 +171,8 @@ export const updatePassword = async (req, res, next) => {
 
 export const searchUsers = async (req, res, next) => {
   try {
-    const searchtext = req.query.search;
-    console.log(searchtext)
+    const searchtext = req.query.searchtext;
+    //console.log(searchtext)
     const query = {};
 
     if (searchtext) {

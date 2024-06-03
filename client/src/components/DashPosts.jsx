@@ -15,6 +15,7 @@ export default function DashPosts() {
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [filters, setFilters] = useState('');
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -76,6 +77,45 @@ export default function DashPosts() {
     }
   };
 
+  const handleFilterChange = (e) => {
+    setFilters(e.target.value);
+
+  };
+
+  const handleFilter = async () => {
+    const urlParams = new URLSearchParams();
+    urlParams.set('searchtext', filters);
+    try {
+      const response = await fetch(`/api/post/filterposts/search?${urlParams}`);
+      const dataSearch = await response.json();
+      if (response.ok) {
+        setUserPosts(dataSearch);
+        setShowMore(false);
+      } else {
+        console.error(dataSearch.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      const res = await fetch(`/api/post/getallposts`);
+      const data = await res.json();
+      if (res.ok) {
+        setUserPosts(data.posts);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    setFilters('');
+  }
+
   const openDialog = () => setIsDialogOpen(true); // Function to open dialog
   const closeDialog = () => setIsDialogOpen(false); // Function to close dialog
 
@@ -87,13 +127,16 @@ export default function DashPosts() {
         </h1>
       </div>
 
-      <div className='w-full'>
+      <div className='w-full w-[1200px]'>
         <div className='flex space-x-4 justify-between mb-5'>
           <div className='flex space-x-4 justify-between mb-5'>
-            <TextInput type="text" placeholder="Filter" id="search" aria-label="Search" style={{ width: '280px' }} />
-            <Button>
+            <TextInput type="text" placeholder="Please enter words to search" id="search" onChange={handleFilterChange} value={filters} aria-label="Search" style={{ width: '280px' }} />
+            <Button onClick={handleFilter}>
               <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
               Search
+            </Button>
+            <Button onClick={handleRefresh} className='bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-700'>
+              Refresh
             </Button>
           </div>
           <div>
@@ -108,7 +151,7 @@ export default function DashPosts() {
 
       {currentUser.isAdmin && userPosts.length > 0 ? (
         <>
-          <Table hoverable className='shadow-md'>
+          <Table hoverable className='shadow-md w-[1200px]'>
             <Table.Head>
               <Table.HeadCell>Date updated</Table.HeadCell>
               <Table.HeadCell>Post image</Table.HeadCell>
@@ -186,7 +229,7 @@ export default function DashPosts() {
           )}
         </>
       ) : (
-        <p>You have no posts yet!</p>
+        <h1 className='text-center'>You have no posts yet!</h1>
       )}
       <Modal
         show={showModal}

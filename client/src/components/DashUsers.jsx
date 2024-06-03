@@ -34,7 +34,9 @@ export default function DashUsers() {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [deleteUserSuccess, setDeleteUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
+  const [deleteUserError, setDeleteUserError] = useState(null);
   const [userIdToDelete, setUserIdToDelete] = useState('');
   const [filters, setFilters] = useState('');
   const [userToEdit, setUserToEdit] = useState(null);
@@ -114,6 +116,7 @@ export default function DashUsers() {
   };
 
   const handleDeleteUser = async () => {
+
     try {
       const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
         method: 'DELETE',
@@ -121,12 +124,17 @@ export default function DashUsers() {
       const data = await res.json();
       if (res.ok) {
         setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
-        setShowModal(false);
+        setDeleteUserSuccess("Deleted this user successfully");
+        setTimeout(() => {
+          setShowModal(false);
+        }, 2000);
+        //setShowModal(false);
+
       } else {
-        console.log(data.message);
+        setDeleteUserError(data.message);
       }
     } catch (error) {
-      console.log(error.message);
+      setDeleteUserError(error.message);
     }
   };
 
@@ -148,21 +156,6 @@ export default function DashUsers() {
         setUpdateUserError(dataEdit.message);
 
       } else {
-
-        try {
-          const result = await fetch(`/api/user/getusers`);
-          const dataUpdate = await result.json();
-          if (result.ok) {
-            setUsers(dataUpdate.users);
-            //setUsersInit(dataUpdate.users);
-            if (dataUpdate.users.length < 9) {
-              setShowMore(false);
-            }
-          }
-        } catch (error) {
-          console.log(error.message);
-        }
-
         setUpdateUserSuccess("User's profile updated successfully");
       }
     } catch (error) {
@@ -172,25 +165,44 @@ export default function DashUsers() {
 
   const handleFilterChange = (e) => {
     setFilters(e.target.value);
-
   };
 
   const handleFilter = async () => {
-    // const urlParams = new URLSearchParams();
-    // urlParams.set('searchtext', filters);
-    // const searchQuery = urlParams.toString();
+    const urlParams = new URLSearchParams();
+    urlParams.set('searchtext', filters);
     try {
-      const response = await fetch(`/api/user/searchusers?search=${filters}`);
+      const response = await fetch(`/api/user/filterusers/search?${urlParams}`);
       const dataSearch = await response.json();
       if (response.ok) {
-        setUsers(dataSearch.users);
+        setUsers(dataSearch);
+        setShowMore(false);
       } else {
         console.error(dataSearch.message);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
+
+  const handleRefresh = async () => {
+    try {
+      const res = await fetch(`/api/user/getusers`);
+      const data = await res.json();
+      if (res.ok) {
+        setUsers(data.users);
+        if (data.users.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    setFilters('');
+
+  }
+
+
 
   const openDialog = () => setIsDialogOpen(true); // Function to open dialog
   const closeDialog = async () => {
@@ -217,13 +229,16 @@ export default function DashUsers() {
         </h1>
       </div>
 
-      <div className='w-full'>
+      <div className='w-full w-[1200px]'>
         <div className='flex space-x-4 justify-between mb-5'>
           <div className='flex space-x-4 justify-between mb-5'>
-            <TextInput type="text" placeholder="Filter" id="search" onChange={handleFilterChange} aria-label="Search" style={{ width: '280px' }} />
+            <TextInput type="text" placeholder="Please enter words to search" id="search" onChange={handleFilterChange} value={filters} aria-label="Search" style={{ width: '280px' }} />
             <Button onClick={handleFilter}>
               <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
               Search
+            </Button>
+            <Button onClick={handleRefresh} className='bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-700'>
+              Refresh
             </Button>
           </div>
           <div>
@@ -239,7 +254,7 @@ export default function DashUsers() {
 
       {currentUser.isAdmin && users.length > 0 ? (
         <>
-          <Table hoverable className='shadow-md'>
+          <Table hoverable className='shadow-md w-[1200px]'>
             <Table.Head>
               <Table.HeadCell>STT</Table.HeadCell>
               <Table.HeadCell>Date created</Table.HeadCell>
@@ -279,6 +294,8 @@ export default function DashUsers() {
                     <span
                       onClick={() => {
                         setShowModal(true);
+                        setDeleteUserSuccess(null);
+                        setDeleteUserError(null);
                         setUserIdToDelete(user._id);
                       }}
                       className='font-medium text-red-500 hover:underline cursor-pointer'
@@ -307,7 +324,8 @@ export default function DashUsers() {
           )}
         </>
       ) : (
-        <p>You have no users yet!</p>
+
+        <h1 className='text-center'>You have no users yet!</h1>
       )}
 
 
@@ -333,15 +351,41 @@ export default function DashUsers() {
               </Button>
             </div>
           </div>
+          {
+            deleteUserSuccess && (
+              <Alert color='success' className='mt-5'>
+                {deleteUserSuccess}
+              </Alert>
+            )
+          }
+          {
+            deleteUserError && (
+              <Alert color='failure' className='mt-5'>
+                {deleteUserError}
+              </Alert>
+            )
+          }
         </Modal.Body>
       </Modal>
 
       {showEditModal && (
         <Modal
           show={showEditModal}
-          onClose={() => {
+          onClose={async () => {
             setShowEditModal(false);
-
+            try {
+              const result = await fetch(`/api/user/getusers`);
+              const dataUpdate = await result.json();
+              if (result.ok) {
+                setUsers(dataUpdate.users);
+                //setUsersInit(dataUpdate.users);
+                if (dataUpdate.users.length < 9) {
+                  setShowMore(false);
+                }
+              }
+            } catch (error) {
+              console.log(error.message);
+            }
           }}
           popup
           sz='lg'

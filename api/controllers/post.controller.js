@@ -148,3 +148,23 @@ export async function getallpostsbyuserid(req, res, next) {
     });
   }
 }
+
+
+export const searchPosts = async (req, res, next) => {
+  try {
+    const searchtext = req.query.searchtext;
+    const query = {};
+
+    if (searchtext) {
+      query.$or = [
+        { title: { $regex: searchtext, $options: 'i' } },
+        { category: { $regex: searchtext, $options: 'i' } },
+      ];
+    }
+
+    const posts = await Post.find(query);
+    res.status(200).json(posts);
+  } catch (error) {
+    next(error);
+  }
+};
