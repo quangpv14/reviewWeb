@@ -21,7 +21,7 @@ export default function UpdatePost() {
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
   const { postId } = useParams();
-
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -45,6 +45,22 @@ export default function UpdatePost() {
     } catch (error) {
       console.log(error.message);
     }
+
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/category/getallcategory`);
+        const data = await res.json();
+        if (res.ok) {
+          setCategories(data.categories);
+
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchCategory();
+
   }, [postId]);
 
   const handleUpdloadImage = async () => {
@@ -130,9 +146,11 @@ export default function UpdatePost() {
             value={formData.category}
           >
             <option value='uncategorized'>Select a category</option>
-            <option value='iphone'>IPhone</option>
-            <option value='samsung'>Samsung</option>
-            <option value='robot'>Robot</option>
+            {categories.map(category => (
+              <option key={category._id} value={category.categoryName}>
+                {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+              </option>
+            ))}
           </Select>
         </div>
         <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>

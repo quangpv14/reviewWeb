@@ -209,9 +209,9 @@ export default function DashCategory() {
                             <Table.Body className='divide-y' key={category._id}>
                                 <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
                                     <Table.Cell>{category.categoryName}</Table.Cell>
-                                    <Table.Cell>{category.description}</Table.Cell>
+                                    <Table.Cell className='w-[600px]'>{category.description}</Table.Cell>
                                     <Table.Cell>{category.status.charAt(0).toUpperCase() + category.status.slice(1)}</Table.Cell>
-                                    <Table.Cell>{category.totalCount}</Table.Cell>
+                                    <Table.Cell className='text-center'>{category.totalCount}</Table.Cell>
                                     <Table.Cell>
                                         <span
                                             onClick={() => {

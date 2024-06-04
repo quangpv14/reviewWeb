@@ -124,6 +124,7 @@ export function getallposts(req, res, next) {
   try {
     Post.find()
       .sort({ createdAt: -1 })
+      .populate('userId')
       .then(allPost => {
         return res.status(200).json({
           success: true,

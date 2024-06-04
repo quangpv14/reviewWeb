@@ -160,6 +160,7 @@ export default function DashPosts() {
           <Table hoverable className='shadow-md w-[1200px]'>
             <Table.Head>
               <Table.HeadCell>Date updated</Table.HeadCell>
+              <Table.HeadCell>Author</Table.HeadCell>
               <Table.HeadCell>Post image</Table.HeadCell>
               <Table.HeadCell>Post title</Table.HeadCell>
               <Table.HeadCell>Category</Table.HeadCell>
@@ -175,6 +176,10 @@ export default function DashPosts() {
                   <Table.Cell>
                     {new Date(post.updatedAt).toLocaleDateString()}
                   </Table.Cell>
+                  <Table.Cell>
+                    {post.userId && post.userId.fullname}
+                  </Table.Cell>
+
                   <Table.Cell>
                     <Link to={`/post/${post.slug}`}>
                       <img

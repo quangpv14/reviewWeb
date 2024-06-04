@@ -8,7 +8,7 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
@@ -19,8 +19,26 @@ export default function CreatePost({ isOpen, onClose }) {
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/category/getallcategory`);
+        const data = await res.json();
+        if (res.ok) {
+          setCategories(data.categories);
+
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchCategory();
+
+  });
 
   const handleUpdloadImage = async () => {
     try {
@@ -106,9 +124,11 @@ export default function CreatePost({ isOpen, onClose }) {
                 }
               >
                 <option value='uncategorized'>Select a category</option>
-                <option value='iphone'>IPhone</option>
-                <option value='samsung'>Samsung</option>
-                <option value='robot'>Robot</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category.categoryName}>
+                    {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                  </option>
+                ))}
               </Select>
             </div>
             <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
