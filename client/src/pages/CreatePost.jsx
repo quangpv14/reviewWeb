@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
+import { ToolbarOptions } from "../common/quill.constant";
 
 export default function CreatePost({ isOpen, onClose }) {
   const [file, setFile] = useState(null);
@@ -150,6 +151,7 @@ export default function CreatePost({ isOpen, onClose }) {
               placeholder='Write something...'
               className='h-72 mb-12'
               required
+              modules={{toolbar: ToolbarOptions}}
               onChange={(value) => {
                 setFormData({ ...formData, content: value });
               }}
