@@ -1,10 +1,11 @@
 import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
+import {
+  incrementTotalCount,
+  decrementTotalCount,
+} from '../controllers/category.controller.js'
 
 export const create = async (req, res, next) => {
-  // if (!req.user.isAdmin) {
-  //   return next(errorHandler(403, 'You are not allowed to create a post'));
-  // }
   if (!req.body.title || !req.body.content) {
     return next(errorHandler(400, 'Please provide all required fields'));
   }
@@ -20,6 +21,9 @@ export const create = async (req, res, next) => {
   });
   try {
     const savedPost = await newPost.save();
+    // Increment totalCount in the category
+    await incrementTotalCount(req.body.category);
+
     res.status(201).json(savedPost);
   } catch (error) {
     next(error);
@@ -76,7 +80,16 @@ export const deletepost = async (req, res, next) => {
     return next(errorHandler(403, 'You are not allowed to delete this post'));
   }
   try {
-    await Post.findByIdAndDelete(req.params.postId);
+
+    // Find the post by ID
+    const post = await Post.findByIdAndDelete(req.params.postId);
+
+    if (!post) {
+      return next(errorHandler(404, 'Post not found'));
+    }
+    // Decrement totalCount in the category
+    await decrementTotalCount(post.category);
+
     res.status(200).json('The post has been deleted');
   } catch (error) {
     next(error);

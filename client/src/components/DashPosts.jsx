@@ -1,4 +1,4 @@
-import { Modal, Table, Button, TextInput } from 'flowbite-react';
+import { Modal, Table, Button, TextInput, Alert } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -16,6 +16,7 @@ export default function DashPosts() {
   const [postIdToDelete, setPostIdToDelete] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filters, setFilters] = useState('');
+  const [deleteSuccess, setDeleteSuccess] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -56,7 +57,7 @@ export default function DashPosts() {
   };
 
   const handleDeletePost = async () => {
-    setShowModal(false);
+
     try {
       const res = await fetch(
         `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
@@ -71,6 +72,11 @@ export default function DashPosts() {
         setUserPosts((prev) =>
           prev.filter((post) => post._id !== postIdToDelete)
         );
+        setDeleteSuccess("Deleted this posts successfully");
+
+        setTimeout(() => {
+          setShowModal(false);
+        }, 2000);
       }
     } catch (error) {
       console.log(error.message);
@@ -253,6 +259,13 @@ export default function DashPosts() {
               </Button>
             </div>
           </div>
+          {
+            deleteSuccess && (
+              <Alert color='success' className='mt-5'>
+                {deleteSuccess}
+              </Alert>
+            )
+          }
         </Modal.Body>
       </Modal>
     </div>

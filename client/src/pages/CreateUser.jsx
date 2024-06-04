@@ -1,5 +1,5 @@
 import { Alert, Button, Label, TextInput, Select, Modal } from 'flowbite-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const vietnamProvinces = [
@@ -50,6 +50,13 @@ export default function CreateUser({ isOpen, onClose }) {
         region: ''
     });
 
+    useEffect(() => {
+        if (isOpen) {
+            setErrorMessage(null);
+            setCreateUserSuccess(null);
+        }
+    }, [isOpen]);
+
     const handleChange = (e) => {
         const { id, value } = e.target;
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -61,7 +68,6 @@ export default function CreateUser({ isOpen, onClose }) {
         }
     };
 
-    //console.log(formData);
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage(null);
@@ -242,18 +248,18 @@ export default function CreateUser({ isOpen, onClose }) {
                 <div className='flex items-center justify-center'>
                     {
                         createUserSuccess && (
-                            <Alert color='success' className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96'>
+                            <Alert color='success' >
                                 {createUserSuccess}
                             </Alert>
                         )
                     }
-                    {
+                    {/* {
                         errorMessage && (
-                            <Alert color='failure' className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96'>
+                            <Alert color='failure'>
                                 {errorMessage}
                             </Alert>
                         )
-                    }
+                    } */}
                 </div>
             </Modal.Body>
         </Modal>

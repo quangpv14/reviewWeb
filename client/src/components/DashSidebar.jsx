@@ -7,6 +7,7 @@ import {
   HiAnnotation,
   HiChartPie,
 } from 'react-icons/hi';
+import { BiSolidCategory } from "react-icons/bi";
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
@@ -86,6 +87,15 @@ export default function DashSidebar() {
                   as='div'
                 >
                   Users Management
+                </Sidebar.Item>
+              </Link>
+              <Link to='/dashboard?tab=category'>
+                <Sidebar.Item
+                  active={tab === 'category'}
+                  icon={BiSolidCategory}
+                  as='div'
+                >
+                  Category
                 </Sidebar.Item>
               </Link>
               <Link to='/dashboard?tab=comments'>
