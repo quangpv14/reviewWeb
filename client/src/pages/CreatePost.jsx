@@ -41,7 +41,7 @@ export default function CreatePost({ isOpen, onClose }) {
 
     fetchCategory();
 
-  });
+  }, []);
 
   const handleUpdloadImage = async () => {
     try {
