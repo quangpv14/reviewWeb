@@ -12,23 +12,24 @@ export default function MyPosts() {
   const { currentUser } = useSelector((state) => state.user);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const fetchPosts = async () => {
+    setLoading(true);
+    const res = await fetch(`/api/post/user/${currentUser._id}`);
+    if (!res.ok) {
+      setLoading(false);
+      return;
+    }
+    const data = await res.json();
+    setPosts(data.posts);
+    if (data.posts.length > 0) {
+      setDisplayedPosts(data.posts.slice(0, 9));
+    }
+    setLoading(false);
+    setShowMore(data.posts.length > 9);
+  };
+
   useEffect(() => {
     if (currentUser && currentUser._id) {
-      const fetchPosts = async () => {
-        setLoading(true);
-        const res = await fetch(`/api/post/user/${currentUser._id}`);
-        if (!res.ok) {
-          setLoading(false);
-          return;
-        }
-        const data = await res.json();
-        setPosts(data.posts);
-        if (data.posts.length > 0) {
-          setDisplayedPosts(data.posts.slice(0, 9));
-        }
-        setLoading(false);
-        setShowMore(data.posts.length > 9);
-      };
       fetchPosts();
     }
   }, [currentUser]);
@@ -41,7 +42,10 @@ export default function MyPosts() {
   };
 
   const openDialog = () => setIsDialogOpen(true); // Function to open dialog
-  const closeDialog = () => setIsDialogOpen(false); // Function to close dialog
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    fetchPosts();
+  }
 
   return (
     <div className='w-full'>

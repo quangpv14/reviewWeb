@@ -1,4 +1,5 @@
-import { Alert, Button, FileInput, Select, TextInput, Modal } from 'flowbite-react';
+import { Alert, Button, FileInput, Select, TextInput, Modal, Toast } from 'flowbite-react';
+import { HiCheck } from "react-icons/hi";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
@@ -8,7 +9,7 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +21,27 @@ export default function CreatePost({ isOpen, onClose }) {
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-
+  const [categories, setCategories] = useState([]);
+  const [showMessageSuccess, setShowMessageSuccess] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/category/getallcategory`);
+        const data = await res.json();
+        if (res.ok) {
+          setCategories(data.categories);
+
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchCategory();
+
+  });
 
   const handleUpdloadImage = async () => {
     try {
@@ -77,7 +97,11 @@ export default function CreatePost({ isOpen, onClose }) {
 
       if (res.ok) {
         setPublishError(null);
-        navigate(`/post/${data.slug}`);
+        setShowMessageSuccess(true);
+        // setTimeout(() => {
+        //   navigate(`/post/${data.slug}`);
+        // }, 3000);
+
       }
     } catch (error) {
       setPublishError('Something went wrong');
@@ -107,9 +131,11 @@ export default function CreatePost({ isOpen, onClose }) {
                 }
               >
                 <option value='uncategorized'>Select a category</option>
-                <option value='iphone'>IPhone</option>
-                <option value='samsung'>Samsung</option>
-                <option value='robot'>Robot</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category.categoryName}>
+                    {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                  </option>
+                ))}
               </Select>
             </div>
             <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
@@ -164,6 +190,41 @@ export default function CreatePost({ isOpen, onClose }) {
                 {publishError}
               </Alert>
             )}
+
+            <Modal
+              show={showMessageSuccess}
+              size="md"
+              onClose={() => setShowMessageSuccess(false)}
+              popup
+            >
+
+              <Modal.Body className='p-0'>
+                <div className='text-center'>
+                  <div className='flex items-center justify-center bg-green-500'>
+                    <HiCheck className="mx-auto mb-3 h-7 w-7 rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200 mt-3" />
+                  </div>
+                  <div className='flex items-center justify-center h-[70px]'>
+                    <h2 className="text-3xl font-bold text-green-500">Success!</h2>
+                  </div>
+
+                  <h3 className="mb-5 text-md font-normal text-gray-500 dark:text-gray-400">
+                    You have just created this post. Please wait for approval!
+                  </h3>
+
+                  <div className="flex justify-center gap-4">
+                    <Button color="success" className='w-[120px] mb-4'
+                      onClick={() => {
+                        setShowMessageSuccess(false);
+                        onClose();
+                      }}
+                    >
+                      {"Okay"}
+                    </Button>
+                  </div>
+                </div>
+              </Modal.Body>
+            </Modal>
+
           </form>
         </div>
       </Modal.Body>

@@ -7,6 +7,9 @@ import DashUsers from '../components/DashUsers';
 import DashCategory from '../components/DashCategory';
 import DashComments from '../components/DashComments';
 import DashboardComp from '../components/DashboardComp';
+import DashPublishedPosts from '../components/DashPublishedPost';
+import DashPendingPosts from '../components/DashPendingPost';
+import DashRejectedPosts from '../components/DashRejectedPost';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -28,6 +31,13 @@ export default function Dashboard() {
       {tab === 'profile' && <DashProfile />}
       {/* posts... */}
       {tab === 'posts' && <DashPosts />}
+      {/* published posts... */}
+      {tab === 'publishedposts' && <DashPublishedPosts />}
+      {/* pending posts... */}
+      {tab === 'pendingposts' && <DashPendingPosts />}
+      {/* pending posts... */}
+      {tab === 'rejectedposts' && <DashRejectedPosts />}
+
       {/* users */}
       {tab === 'users' && <DashUsers />}
       {/* category... */}

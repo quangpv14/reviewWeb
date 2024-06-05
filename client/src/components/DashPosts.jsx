@@ -1,9 +1,9 @@
-import { Modal, Table, Button, TextInput, Alert } from 'flowbite-react';
+import { Modal, Table, Button, TextInput, Alert, Dropdown, Radio, Label } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { IoSearchSharp, IoEyeSharp } from "react-icons/io5";
+import { IoSearchSharp, IoEyeSharp, IoFilter } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { set } from 'mongoose';
 import CreatePost from '../pages/CreatePost';
@@ -13,6 +13,7 @@ export default function DashPosts() {
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('pending');
   const [postIdToDelete, setPostIdToDelete] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filters, setFilters] = useState('');
@@ -41,9 +42,7 @@ export default function DashPosts() {
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
     try {
-      const res = await fetch(
-        `/api/post/getallposts&startIndex=${startIndex}`
-      );
+      const res = await fetch(`/api/post/getallposts?startIndex=${startIndex}`);
       const data = await res.json();
       if (res.ok) {
         setUserPosts((prev) => [...prev, ...data.posts]);
@@ -88,6 +87,10 @@ export default function DashPosts() {
 
   };
 
+  const handleRadioChange = (e) => {
+    setSelectedValue(e.target.value);
+  };
+
   const handleFilter = async () => {
     const urlParams = new URLSearchParams();
     urlParams.set('searchtext', filters);
@@ -122,8 +125,38 @@ export default function DashPosts() {
     setFilters('');
   }
 
+
   const openDialog = () => setIsDialogOpen(true); // Function to open dialog
-  const closeDialog = () => setIsDialogOpen(false); // Function to close dialog
+  const closeDialog = async () => {
+    setIsDialogOpen(false);
+
+    try {
+      const res = await fetch(`/api/post/getallposts`);
+      const data = await res.json();
+      if (res.ok) {
+        setUserPosts(data.posts);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case 'approved':
+        return 'green';
+      case 'pending':
+        return 'orange';
+      case 'rejected':
+        return 'red';
+      default:
+        return 'black';
+    }
+  }
+
 
   return (
     <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
@@ -145,11 +178,37 @@ export default function DashPosts() {
               Refresh
             </Button>
           </div>
-          <div>
-            <Button className='text-white bg-green-700' onClick={openDialog}>
+          <div className='flex h-[43px]'>
+            <Button className='text-white bg-green-700 mr-5' onClick={openDialog}>
               <FaPlus className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
               Create post
             </Button>
+            <Dropdown label="Filter" size="lg">
+              <Dropdown.Header className='w-[120px]'>Status Post</Dropdown.Header>
+              <Dropdown.Divider />
+              <fieldset className="flex flex-col gap-3 items-center">
+                <div className="flex items-center gap-2 mt-3 ml-2">
+                  <Radio id="approved" value="approved" name="bordered-radio" checked={selectedValue === 'approved'}
+                    onChange={handleRadioChange} />
+                  <Label htmlFor="approved">Approved</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Radio id="pending" value="pending" name="bordered-radio" checked={selectedValue === 'pending'}
+                    onChange={handleRadioChange} />
+                  <Label htmlFor="pending">Pending</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Radio id="rejected" value="rejected" name="bordered-radio" checked={selectedValue === 'rejected'}
+                    onChange={handleRadioChange} />
+                  <Label htmlFor="rejected">Rejected</Label>
+                </div>
+                <div className="flex items-center gap-2 mb-3 ml-1 mb-3">
+                  <Radio id="rejected" value="" name="bordered-radio" checked={selectedValue === ''}
+                    onChange={handleRadioChange} />
+                  <Label>All posts</Label>
+                </div>
+              </fieldset>
+            </Dropdown>
           </div>
           <CreatePost isOpen={isDialogOpen} onClose={closeDialog} />
         </div>
@@ -159,22 +218,31 @@ export default function DashPosts() {
         <>
           <Table hoverable className='shadow-md w-[1200px]'>
             <Table.Head>
-              <Table.HeadCell>Date updated</Table.HeadCell>
+              <Table.HeadCell>Date Submitted</Table.HeadCell>
+              <Table.HeadCell>Author</Table.HeadCell>
               <Table.HeadCell>Post image</Table.HeadCell>
               <Table.HeadCell>Post title</Table.HeadCell>
               <Table.HeadCell>Category</Table.HeadCell>
+              <Table.HeadCell>Status</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
               <Table.HeadCell>
                 <span>Edit</span>
               </Table.HeadCell>
               <Table.HeadCell> </Table.HeadCell>
             </Table.Head>
-            {userPosts.map((post) => (
+            {userPosts.map((post, index) => (
               <Table.Body className='divide-y'>
-                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
-                  <Table.Cell>
+                <Table.Row
+                  key={post._id}
+                  className={index % 2 === 0 ? 'bg-white dark:border-gray-700 dark:bg-gray-800' : 'bg-gray-100 dark:border-gray-700 dark:bg-gray-900'}
+                >
+                  <Table.Cell className='w-[150px] ml-1'>
                     {new Date(post.updatedAt).toLocaleDateString()}
                   </Table.Cell>
+                  <Table.Cell>
+                    {post.userId && post.userId.fullname}
+                  </Table.Cell>
+
                   <Table.Cell>
                     <Link to={`/post/${post.slug}`}>
                       <img
@@ -193,6 +261,7 @@ export default function DashPosts() {
                     </Link>
                   </Table.Cell>
                   <Table.Cell>{post.category.charAt(0).toUpperCase() + post.category.slice(1)}</Table.Cell>
+                  <Table.Cell style={{ color: getCategoryColor(post.status) }}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</Table.Cell>
                   <Table.Cell>
                     <span
                       onClick={() => {

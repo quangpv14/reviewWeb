@@ -52,7 +52,7 @@ export default function DashboardComp() {
         const res = await fetch('/api/comment/getcomments?limit=5');
         const data = await res.json();
         if (res.ok) {
-          setComments(data.comments);
+          setComments(data.commentsWithInfo);
           setTotalComments(data.totalComments);
           setLastMonthComments(data.lastMonthComments);
         }
@@ -167,7 +167,7 @@ export default function DashboardComp() {
                 <Table.Body key={comment._id} className='divide-y'>
                   <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
                     <Table.Cell className='w-96'>
-                        <p className='line-clamp-2'>{comment.content}</p>
+                      <p className='line-clamp-2'>{comment.content}</p>
                     </Table.Cell>
                     <Table.Cell>{comment.numberOfLikes}</Table.Cell>
                   </Table.Row>

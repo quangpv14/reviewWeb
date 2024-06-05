@@ -4,6 +4,7 @@ const postSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
+      ref: 'User',
       required: true,
     },
     content: {
@@ -29,6 +30,11 @@ const postSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    status: {
+      type: String,
+      default: 'pending',
+    },
+
   },
   { timestamps: true }
 );

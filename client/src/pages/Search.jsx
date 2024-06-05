@@ -14,9 +14,9 @@ export default function Search() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const location = useLocation();
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +53,22 @@ export default function Search() {
       }
     };
     fetchPosts();
+
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/category/getallcategory`);
+        const data = await res.json();
+        if (res.ok) {
+          setCategories(data.categories);
+
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchCategory();
+
   }, [location.search]);
 
   const handleChange = (e) => {
@@ -131,9 +147,11 @@ export default function Search() {
               id='category'
             >
               <option value='uncategorized'>Uncategorized</option>
-              <option value='iphone'>IPhone</option>
-              <option value='samsung'>Samsung</option>
-              <option value='robot'>Robot</option>
+              {categories.map(category => (
+                <option key={category._id} value={category.categoryName}>
+                  {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                </option>
+              ))}
 
             </Select>
           </div>
