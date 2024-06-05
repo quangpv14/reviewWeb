@@ -11,6 +11,7 @@ export default function PostPage() {
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
+  const [tableOfContents, setTableOfContents] = useState([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -51,6 +52,34 @@ export default function PostPage() {
     }
   }, []);
 
+  useEffect(() => {
+    const modifyPostContent = () => {
+      let index = 1;
+      if (post) {
+        const modifiedContent = post.content.replace(/<h[1-3]/g, (match) => {
+          const modifiedHeader = `${match} id="header${index}"`;
+          index++;
+          return modifiedHeader;
+        });
+        post.content = modifiedContent;
+
+        const headers = post.content.match(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi);
+        if (headers) {
+          const toc = headers.map((header) => {
+            const tag = header.substr(1, 2);
+            const text = header.replace(/<\/?h[1-3][^>]*>/g, '');
+            return { tag, text };
+          });
+          setTableOfContents(toc);
+        } else {
+          setTableOfContents([]);
+        }
+      }
+    };
+
+    modifyPostContent();
+  }, [post]);
+
   if (loading)
     return (
       <div className='flex justify-center items-center min-h-screen'>
@@ -62,6 +91,23 @@ export default function PostPage() {
       <h1 className='text-3xl mt-10 p-3 text-center max-w-3xl mx-auto lg:text-4xl'>
         {post && post.title}
       </h1>
+      {tableOfContents.length > 0 && (
+        <div className='p-3 max-w-2xl mx-auto w-full text-left'>
+          <h2 className='text-lg font-semibold mb-2'>Table of Contents</h2>
+          <ul className='pl-4'>
+            {tableOfContents.map((item, index) => (
+              <li key={index} className='mb-1'>
+                <a
+                  href={`#header${index + 1}`}
+                  className='text-blue-500 hover:underline'
+                >
+                  {item.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <Link
         to={`/search?category=${post && post.category}`}
         className='self-center mt-5'
