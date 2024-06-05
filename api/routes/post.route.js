@@ -13,6 +13,7 @@ import {
 	getallpostsbyuserid,
 	searchPosts,
 	searchPostsByStatus,
+	viewPost,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -32,6 +33,7 @@ router.put(
 	verifyIsAdminOrNonBlockedUser,
 	updatepost
 );
+router.put("/viewpost/:postId/:userId", verifyToken, viewPost);
 router.get("/user/:userId", getallpostsbyuserid);
 router.get("/filterposts/search", searchPosts);
 router.get("/getpostsbystatus", verifyToken, getpostsbystatus);
