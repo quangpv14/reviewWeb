@@ -54,9 +54,12 @@ export default function MyPosts() {
           My posts:
         </h1>
         <div className='pr-10 mr-10' color="success">
-          <Button color="success" size="lg" className='w-100' onClick={openDialog}>
-            New
-          </Button>
+            {
+              currentUser && !currentUser?.isBlock && (
+                <Button color="success" size="lg" className='w-100' onClick={openDialog}>
+                    New
+                </Button>) 
+            }
         </div>
 
       </div>

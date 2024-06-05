@@ -1,20 +1,32 @@
-import express from 'express';
-import { verifyToken } from '../utils/verifyUser.js';
+import express from "express";
 import {
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    getallcategory,
-    searchCategory,
-} from '../controllers/category.controller.js';
+	verifyToken,
+	verifyIsAdminOrNonBlockedUser,
+} from "../utils/verifyUser.js";
+import {
+	createCategory,
+	updateCategory,
+	deleteCategory,
+	getallcategory,
+	searchCategory,
+} from "../controllers/category.controller.js";
 
 const router = express.Router();
 
-router.post('/create', createCategory);
-router.put('/update/:id', verifyToken, updateCategory);
-router.delete('/delete/:id/:userId', verifyToken, deleteCategory);
-router.get('/getallcategory', getallcategory);
-router.get('/filtercategory/search', searchCategory);
+router.post("/create", createCategory);
+router.put(
+	"/update/:id",
+	verifyToken,
+	verifyIsAdminOrNonBlockedUser,
+	updateCategory
+);
+router.delete(
+	"/delete/:id/:userId",
+	verifyToken,
+	verifyIsAdminOrNonBlockedUser,
+	deleteCategory
+);
+router.get("/getallcategory", getallcategory);
+router.get("/filtercategory/search", searchCategory);
 
 export default router;
-

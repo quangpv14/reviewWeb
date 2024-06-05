@@ -135,7 +135,7 @@ export default function CommentSection({ postId }) {
           </Link>
         </div>
       )}
-      {currentUser && (
+      {currentUser && !currentUser.isBlock && (
         <form
           onSubmit={handleSubmit}
           className='border border-teal-500 rounded-md p-3'
