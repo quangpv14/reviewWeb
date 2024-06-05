@@ -41,6 +41,12 @@ export default function DashSidebar() {
       console.log(error.message);
     }
   };
+
+  const selectedButtonStyle = {
+    backgroundColor: '#7e6af7',
+    color: 'white'
+  };
+
   return (
     <Sidebar className='w-full md:w-56'>
       <Sidebar.Items>
@@ -48,6 +54,7 @@ export default function DashSidebar() {
           {currentUser && currentUser.isAdmin && (
             <Link to='/dashboard?tab=dash'>
               <Sidebar.Item
+                style={tab === 'dash' ? selectedButtonStyle : {}}
                 active={tab === 'dash' || !tab}
                 icon={HiChartPie}
                 as='div'
@@ -58,6 +65,7 @@ export default function DashSidebar() {
           )}
           <Link to='/dashboard?tab=profile'>
             <Sidebar.Item
+              style={tab === 'profile' ? selectedButtonStyle : {}}
               active={tab === 'profile'}
               icon={HiUser}
               label={currentUser.isAdmin ? 'Admin' : 'User'}
@@ -68,20 +76,56 @@ export default function DashSidebar() {
             </Sidebar.Item>
           </Link>
           {currentUser.isAdmin && (
-            <Link to='/dashboard?tab=posts'>
-              <Sidebar.Item
-                active={tab === 'posts'}
+            <>
+              <Sidebar.Collapse
                 icon={HiDocumentText}
+                label="Posts Management"
                 as='div'
               >
-                Posts Management
-              </Sidebar.Item>
-            </Link>
+                <Link to='/dashboard?tab=posts'>
+                  <Sidebar.Item
+                    style={tab === 'posts' ? selectedButtonStyle : {}}
+                    active={tab === 'posts'}
+                    as='div'
+                  >
+                    All Posts
+                  </Sidebar.Item>
+                </Link>
+                <Link to='/dashboard?tab=publishedposts'>
+                  <Sidebar.Item
+                    style={tab === 'publishedposts' ? selectedButtonStyle : {}}
+                    active={tab === 'publishedposts'}
+                    as='div'
+                  >
+                    Published Posts
+                  </Sidebar.Item>
+                </Link>
+                <Link to='/dashboard?tab=pendingposts'>
+                  <Sidebar.Item
+                    style={tab === 'pendingposts' ? selectedButtonStyle : {}}
+                    active={tab === 'pendingposts'}
+                    as='div'
+                  >
+                    Pending Posts
+                  </Sidebar.Item>
+                </Link>
+                <Link to='/dashboard?tab=rejectedposts'>
+                  <Sidebar.Item
+                    style={tab === 'rejectedposts' ? selectedButtonStyle : {}}
+                    active={tab === 'rejectedposts'}
+                    as='div'
+                  >
+                    Rejected Posts
+                  </Sidebar.Item>
+                </Link>
+              </Sidebar.Collapse>
+            </>
           )}
           {currentUser.isAdmin && (
             <>
               <Link to='/dashboard?tab=users'>
                 <Sidebar.Item
+                  style={tab === 'users' ? selectedButtonStyle : {}}
                   active={tab === 'users'}
                   icon={HiOutlineUserGroup}
                   as='div'
@@ -91,6 +135,7 @@ export default function DashSidebar() {
               </Link>
               <Link to='/dashboard?tab=category'>
                 <Sidebar.Item
+                  style={tab === 'category' ? selectedButtonStyle : {}}
                   active={tab === 'category'}
                   icon={BiSolidCategory}
                   as='div'
@@ -100,6 +145,7 @@ export default function DashSidebar() {
               </Link>
               <Link to='/dashboard?tab=comments'>
                 <Sidebar.Item
+                  style={tab === 'comments' ? selectedButtonStyle : {}}
                   active={tab === 'comments'}
                   icon={HiAnnotation}
                   as='div'

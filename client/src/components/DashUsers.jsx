@@ -268,7 +268,10 @@ export default function DashUsers() {
             </Table.Head>
             {users.map((user, index) => (
               <Table.Body className='divide-y' key={user._id}>
-                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                <Table.Row
+                  key={user._id}
+                  className={index % 2 === 0 ? 'bg-white dark:border-gray-700 dark:bg-gray-800' : 'bg-gray-100 dark:border-gray-700 dark:bg-gray-900'}
+                >
                   <Table.Cell>{index + 1}</Table.Cell>
                   <Table.Cell>
                     {new Date(user.createdAt).toISOString().substring(0, 10)}

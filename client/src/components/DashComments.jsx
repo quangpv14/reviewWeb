@@ -83,12 +83,14 @@ export default function DashComments() {
       </div>
 
       <div className='w-full w-[1200px]'>
-        <div className='flex justify-center space-x-4 mb-5'>
-          <TextInput type="text" placeholder="Filter" id="search" aria-label="Search" />
-          <Button>
-            <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
-            Search
-          </Button>
+        <div className='flex space-x-4 justify-between mb-5'>
+          <div className='flex space-x-4 justify-between mb-5'>
+            <TextInput type="text" placeholder="Filter" id="search" aria-label="Search" style={{ width: '280px' }} />
+            <Button>
+              <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
+              Search
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -98,19 +100,22 @@ export default function DashComments() {
             <Table.Head>
               <Table.HeadCell>Date updated</Table.HeadCell>
               <Table.HeadCell>Comment content</Table.HeadCell>
-              <Table.HeadCell className='w-[150px] text-center '>Total likes</Table.HeadCell>
-              <Table.HeadCell className='text-center'>Post</Table.HeadCell>
-              <Table.HeadCell className='text-center'>User</Table.HeadCell>
+              <Table.HeadCell>Commenter</Table.HeadCell>
+              <Table.HeadCell>Post</Table.HeadCell>
+              <Table.HeadCell className='w-[120px] text-center '>Total likes</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
             </Table.Head>
-            {comments.map((comment) => (
+            {comments.map((comment, index) => (
               <Table.Body className='divide-y' key={comment._id}>
-                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                <Table.Row
+                  key={comment._id}
+                  className={index % 2 === 0 ? 'bg-white dark:border-gray-700 dark:bg-gray-800' : 'bg-gray-100 dark:border-gray-700 dark:bg-gray-900'}
+                >
                   <Table.Cell>
                     {new Date(comment.updatedAt).toLocaleDateString()}
                   </Table.Cell>
                   <Table.Cell className='w-[360px]'>{comment.content}</Table.Cell>
-                  <Table.Cell className='text-center'>{comment.numberOfLikes}</Table.Cell>
+                  <Table.Cell>{comment.user && comment.user.fullname}</Table.Cell>
                   <Table.Cell className='w-[250px]'>
                     <Link
                       className='font-medium text-gray-900 dark:text-white'
@@ -120,7 +125,7 @@ export default function DashComments() {
                     </Link>
 
                   </Table.Cell>
-                  <Table.Cell>{comment.user && comment.user.fullname}</Table.Cell>
+                  <Table.Cell className='text-center w-[120px]'>{comment.numberOfLikes}</Table.Cell>
                   <Table.Cell>
                     <span
                       onClick={() => {

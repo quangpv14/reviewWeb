@@ -205,9 +205,12 @@ export default function DashCategory() {
                             <Table.HeadCell>Delete</Table.HeadCell>
                             <Table.HeadCell>Edit</Table.HeadCell>
                         </Table.Head>
-                        {categories.map((category) => (
+                        {categories.map((category, index) => (
                             <Table.Body className='divide-y' key={category._id}>
-                                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                                <Table.Row
+                                    key={category._id}
+                                    className={index % 2 === 0 ? 'bg-white dark:border-gray-700 dark:bg-gray-800' : 'bg-gray-100 dark:border-gray-700 dark:bg-gray-900'}
+                                >
                                     <Table.Cell>{category.categoryName}</Table.Cell>
                                     <Table.Cell className='w-[600px]'>{category.description}</Table.Cell>
                                     <Table.Cell>{category.status.charAt(0).toUpperCase() + category.status.slice(1)}</Table.Cell>

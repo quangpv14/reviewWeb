@@ -1,4 +1,5 @@
 import Post from '../models/post.model.js';
+import User from '../models/user.model.js';
 import { errorHandler } from '../utils/error.js';
 import {
   incrementTotalCount,
@@ -119,30 +120,33 @@ export const updatepost = async (req, res, next) => {
   }
 };
 
-export function getallposts(req, res, next) {
+export const getallposts = async (req, res, next) => {
 
   try {
-    Post.find()
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+
+    // Fetch posts from the database with sorting and pagination
+    const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate('userId')
-      .then(allPost => {
-        return res.status(200).json({
-          success: true,
-          message: "A list of all posts",
-          posts: allPost
-        });
-      })
-      .catch(err => {
-        res.status(500).json({
-          success: false,
-          message: "Server error. Please try again.",
-          error: err.message
-        });
-      });
+      .skip(startIndex)
+      .limit(limit)
+      .populate('userId');
+
+    // Send response with the fetched posts
+    res.status(200).json({
+      success: true,
+      message: "A list of all posts",
+      posts: posts
+    });
   } catch (err) {
-    next(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again.",
+      error: err.message
+    });
   }
-}
+};
 
 export async function getallpostsbyuserid(req, res, next) {
   const userId = req.params.userId;
@@ -176,6 +180,52 @@ export const searchPosts = async (req, res, next) => {
       ];
     }
 
+    const posts = await Post.find(query);
+    res.status(200).json(posts);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getpostsbystatus = async (req, res, next) => {
+  try {
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const status = req.query.status;
+
+    const posts = await Post.find({ status: status })
+      .sort({ createdAt: -1 })
+      .skip(startIndex)
+      .limit(limit)
+      .populate('userId');
+
+    // Send response with the fetched posts
+    res.status(200).json({
+      success: true,
+      message: "A list of all published posts",
+      posts: posts
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again.",
+      error: err.message
+    });
+  }
+};
+
+export const searchPostsByStatus = async (req, res, next) => {
+  try {
+    const searchtext = req.query.searchtext;
+    const status = req.query.status;
+    const query = { status };
+
+    if (searchtext) {
+      query.$or = [
+        { title: { $regex: searchtext, $options: 'i' } },
+        { category: { $regex: searchtext, $options: 'i' } },
+      ];
+    }
     const posts = await Post.find(query);
     res.status(200).json(posts);
   } catch (error) {
