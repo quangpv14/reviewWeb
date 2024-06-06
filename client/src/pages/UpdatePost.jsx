@@ -1,5 +1,6 @@
-import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
+import { Alert, Button, FileInput, Select, TextInput, Modal } from 'flowbite-react';
 import ReactQuill from 'react-quill';
+import { HiCheck } from "react-icons/hi";
 import 'react-quill/dist/quill.snow.css';
 import {
   getDownloadURL,
@@ -15,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ToolbarOptions } from "../common/quill.constant";
 
+
 export default function UpdatePost() {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
@@ -23,13 +25,14 @@ export default function UpdatePost() {
   const [publishError, setPublishError] = useState(null);
   const { postId } = useParams();
   const [categories, setCategories] = useState([]);
+  const [showMessageSuccess, setShowMessageSuccess] = useState(null);
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     try {
       const fetchPost = async () => {
-        const res = await fetch(`/api/post/getposts?postId=${postId}`);
+        const res = await fetch(`/api/post/getpost/info?postId=${postId}`);
         const data = await res.json();
         if (!res.ok) {
           console.log(data.message);
@@ -103,7 +106,7 @@ export default function UpdatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
+      const res = await fetch(`/api/post/updatepost/${postId}/${currentUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +121,11 @@ export default function UpdatePost() {
 
       if (res.ok) {
         setPublishError(null);
-        navigate(`/post/${data.slug}`);
+        setShowMessageSuccess(true);
+        setTimeout(() => {
+          navigate(`/my-posts`);
+        }, 3000);
+
       }
     } catch (error) {
       setPublishError('Something went wrong');
@@ -194,7 +201,7 @@ export default function UpdatePost() {
           placeholder='Write something...'
           className='h-72 mb-12'
           required
-          modules={{toolbar: ToolbarOptions}}
+          modules={{ toolbar: ToolbarOptions }}
           onChange={(value) => {
             setFormData({ ...formData, content: value });
           }}
@@ -207,6 +214,43 @@ export default function UpdatePost() {
             {publishError}
           </Alert>
         )}
+
+        <Modal
+          show={showMessageSuccess}
+          size="md"
+          onClose={() => {
+            setShowMessageSuccess(false);
+            navigate(`/my-posts`);
+          }}
+          popup
+        >
+
+          <Modal.Body className='p-0'>
+            <div className='text-center'>
+              <div className='flex items-center justify-center bg-green-500'>
+                <HiCheck className="mx-auto mb-3 h-7 w-7 rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200 mt-3" />
+              </div>
+              <div className='flex items-center justify-center h-[70px]'>
+                <h2 className="text-3xl font-bold text-green-500">Success!</h2>
+              </div>
+
+              <h3 className="mb-5 text-md font-normal text-gray-500 dark:text-gray-400">
+                Updated this post successfully. The system will automatically redirect to your page!
+              </h3>
+
+              <div className="flex justify-center gap-4">
+                <Button color="success" className='w-[120px] mb-4'
+                  onClick={() => {
+                    setShowMessageSuccess(false);
+                    onClose();
+                  }}
+                >
+                  {"Okay"}
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
       </form>
     </div>
   );

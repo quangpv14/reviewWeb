@@ -220,7 +220,7 @@ export default function DashPosts() {
             <Table.Head>
               <Table.HeadCell>Date Submitted</Table.HeadCell>
               <Table.HeadCell>Author</Table.HeadCell>
-              <Table.HeadCell>Post image</Table.HeadCell>
+              {/* <Table.HeadCell>Post image</Table.HeadCell> */}
               <Table.HeadCell>Post title</Table.HeadCell>
               <Table.HeadCell>Category</Table.HeadCell>
               <Table.HeadCell>Status</Table.HeadCell>
@@ -239,11 +239,11 @@ export default function DashPosts() {
                   <Table.Cell className='w-[150px] ml-1'>
                     {new Date(post.updatedAt).toLocaleDateString()}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className='w-[250px]'>
                     {post.userId && post.userId.fullname}
                   </Table.Cell>
 
-                  <Table.Cell>
+                  {/* <Table.Cell>
                     <Link to={`/post/${post.slug}`}>
                       <img
                         src={post.image}
@@ -251,14 +251,23 @@ export default function DashPosts() {
                         className='w-20 h-10 object-cover bg-gray-500'
                       />
                     </Link>
-                  </Table.Cell>
+                  </Table.Cell> */}
                   <Table.Cell>
-                    <Link
-                      className='font-medium text-gray-900 dark:text-white'
-                      to={`/post/${post.slug}`}
-                    >
-                      {post.title}
-                    </Link>
+                    {post.status === 'pending' ? (
+                      <Link
+                        className='font-medium text-gray-900 dark:text-white'
+                        to={`/approvedpost/${post.slug}`}
+                      >
+                        <span>{post.title}</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        className='font-medium text-gray-900 dark:text-white'
+                        to={`/post/${post.slug}`}
+                      >
+                        <span>{post.title}</span>
+                      </Link>
+                    )}
                   </Table.Cell>
                   <Table.Cell>{post.category.charAt(0).toUpperCase() + post.category.slice(1)}</Table.Cell>
                   <Table.Cell style={{ color: getCategoryColor(post.status) }}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</Table.Cell>
@@ -274,12 +283,21 @@ export default function DashPosts() {
                     </span>
                   </Table.Cell>
                   <Table.Cell>
-                    <Link
-                      className='text-teal-500 hover:underline'
-                      to={`/update-post/${post._id}`}
-                    >
-                      <span>Edit</span>
-                    </Link>
+                    {post.status === 'pending' ? (
+                      <Link
+                        className='text-teal-500 hover:underline'
+                        to={`/approvedpost/${post.slug}`}
+                      >
+                        <span>Edit</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        className='text-teal-500 hover:underline'
+                        to={`/post/${post.slug}`}
+                      >
+                        <span>Edit</span>
+                      </Link>
+                    )}
                   </Table.Cell>
                   <Table.Cell>
                     <Link

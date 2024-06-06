@@ -10,6 +10,7 @@ import DashboardComp from '../components/DashboardComp';
 import DashPublishedPosts from '../components/DashPublishedPost';
 import DashPendingPosts from '../components/DashPendingPost';
 import DashRejectedPosts from '../components/DashRejectedPost';
+import ApprovedPost from '../components/ApprovedPost';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -46,6 +47,8 @@ export default function Dashboard() {
       {tab === 'comments' && <DashComments />}
       {/* dashboard comp */}
       {tab === 'dash' && <DashboardComp />}
+
+      {/* {tab === 'posts/:postId' && <ApprovedPost />} */}
     </div>
   );
 }

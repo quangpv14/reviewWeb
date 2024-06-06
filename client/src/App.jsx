@@ -17,7 +17,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Search from './pages/Search';
 import YourPost from './pages/YourPost';
 import MyPosts from './pages/Projects';
-
+import ApprovedPost from './components/ApprovedPost';
 
 export default function App() {
   return (
@@ -32,12 +32,13 @@ export default function App() {
         <Route path='/search' element={<Search />} />
         <Route element={<PrivateRoute />}>
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/update-post/:postId' element={<UpdatePost />} />
         </Route>
         <Route path='/create-post' element={<CreatePost />} />
         <Route element={<OnlyAdminPrivateRoute />}>
-          {/* <Route path='/create-post' element={<CreatePost />} /> */}
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/update-post/:postId' element={<UpdatePost />} />
+          <Route path='/approvedpost/:postSlug' element={<ApprovedPost />} />
         </Route>
 
         <Route path='/my-posts' element={<MyPosts />} />

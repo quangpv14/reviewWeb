@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
+import { FaEdit } from "react-icons/fa";
 
 export default function PostPage() {
   const { postSlug } = useParams();
@@ -12,12 +13,13 @@ export default function PostPage() {
   const [post, setPost] = useState(null);
   const [recentPosts, setRecentPosts] = useState(null);
   const [tableOfContents, setTableOfContents] = useState([]);
+  const approvedPosts = "approved";
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+        const res = await fetch(`/api/post/getpost/info?slug=${postSlug}`);
         const data = await res.json();
         if (!res.ok) {
           setError(true);
@@ -88,9 +90,37 @@ export default function PostPage() {
     );
   return (
     <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
+      <div className='flex justify-center items-center'>
+        {post && post.status === 'rejected' && (
+          <div className='flex justify-center items-center p-1 mx-auto w-full text-center text-2xl'>
+            <h1 className='mr-2'>Bài viết đã bị từ chối!</h1>
+            <span className='text-red-500'>{"abcdạhdajkhsadnj"}</span>
+            <Link
+              to={`/update-post/${post._id}`}
+              className='ml-5 flex items-center text-xl border'
+            >
+              <FaEdit />
+              Chỉnh sửa
+            </Link>
+          </div>
+        )}
+      </div>
       <h1 className='text-3xl mt-10 p-3 text-center max-w-3xl mx-auto lg:text-4xl'>
         {post && post.title}
       </h1>
+      <Link
+        to={`/search?category=${post && post.category}`}
+        className='self-center mt-1'
+      >
+        <Button color='gray' pill size='xs'>
+          {post && post.category}
+        </Button>
+      </Link>
+      {post && post.status === 'pending' && (
+        <h1 className='p-3 max-w-2xl mx-auto w-full text-center text-2xl text-red-500'>
+          Bài viết đang chờ phê duyệt!
+        </h1>
+      )}
       {tableOfContents.length > 0 && (
         <div className='p-3 max-w-2xl mx-auto w-full text-left'>
           <h2 className='text-lg font-semibold mb-2'>Table of Contents</h2>
@@ -108,14 +138,7 @@ export default function PostPage() {
           </ul>
         </div>
       )}
-      <Link
-        to={`/search?category=${post && post.category}`}
-        className='self-center mt-5'
-      >
-        <Button color='gray' pill size='xs'>
-          {post && post.category}
-        </Button>
-      </Link>
+
       <img
         src={post && post.image}
         alt={post && post.title}
@@ -131,10 +154,14 @@ export default function PostPage() {
         className='p-3 max-w-2xl mx-auto w-full post-content text-left'
         dangerouslySetInnerHTML={{ __html: post && post.content }}
       ></div>
+      {post.status === approvedPosts && (
+        <CommentSection postId={post._id} />
+
+      )}
+
       <div className='max-w-4xl mx-auto w-full'>
         <CallToAction />
       </div>
-      <CommentSection postId={post._id} />
 
       <div className='flex flex-col justify-center items-center mb-5'>
         <h1 className='text-xl mt-5'>Recent articles</h1>

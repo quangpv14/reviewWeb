@@ -1,6 +1,7 @@
 import { Avatar, Button, Dropdown, Navbar, TextInput } from 'flowbite-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
+import { HiDotsCircleHorizontal } from "react-icons/hi";
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
@@ -74,6 +75,21 @@ export default function Header() {
         <AiOutlineSearch />
       </Button>
       <div className='flex gap-2 md:order-2'>
+        {currentUser && currentUser.isAdmin && (
+          <Dropdown inline className='mr-5'>
+            <Link to={'/dashboard?tab=dash'}>
+              <Dropdown.Item>Dashboard</Dropdown.Item>
+            </Link>
+            <Dropdown.Divider />
+            <Link to='/dashboard?tab=pendingposts'>
+              <Dropdown.Item>Posts Management</Dropdown.Item>
+            </Link>
+            <Dropdown.Divider />
+            <Link to='/dashboard?tab=users'>
+              <Dropdown.Item>Users Management</Dropdown.Item>
+            </Link>
+          </Dropdown>
+        )}
         <Button
           className='w-12 h-10 hidden sm:inline'
           color='gray'

@@ -34,7 +34,7 @@ export default function DashPublishedPosts() {
     }, [currentUser._id]);
 
     const handleShowMore = async () => {
-        const startIndex = userPosts.length;
+        const startIndex = approvedPosts.length;
         try {
             const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}`);
             const data = await res.json();

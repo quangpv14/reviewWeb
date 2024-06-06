@@ -34,7 +34,7 @@ export default function DashPendingPosts() {
     }, [currentUser._id]);
 
     const handleShowMore = async () => {
-        const startIndex = userPosts.length;
+        const startIndex = approvedPosts.length;
         try {
             const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}`);
             const data = await res.json();
@@ -124,7 +124,7 @@ export default function DashPendingPosts() {
 
                                 <Table.HeadCell>Category</Table.HeadCell>
                                 <Table.HeadCell>Status</Table.HeadCell>
-                                <Table.HeadCell></Table.HeadCell>
+
                                 {/* <Table.HeadCell>
                                 <span>Edit</span>
                             </Table.HeadCell> */}
@@ -138,7 +138,7 @@ export default function DashPendingPosts() {
                                         <Table.Cell className='w-[400px]'>
                                             <Link
                                                 className='font-medium text-gray-900 dark:text-white'
-                                                to={`/post/${post.slug}`}
+                                                to={`/approvedpost/${post.slug}`}
                                             >
                                                 {post.title}
                                             </Link>

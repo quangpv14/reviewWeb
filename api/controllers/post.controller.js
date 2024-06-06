@@ -31,6 +31,28 @@ export const create = async (req, res, next) => {
 	}
 };
 
+export const getpostinfo = async (req, res, next) => {
+	try {
+
+		const posts = await Post.find({
+			...(req.query.slug && { slug: req.query.slug }),
+			...(req.query.postId && { _id: req.query.postId }),
+		});
+
+		res.status(200).json({
+			success: true,
+			message: "Post information",
+			posts: posts,
+		});
+	} catch (err) {
+		res.status(500).json({
+			success: false,
+			message: "Server error. Please try again.",
+			error: err.message,
+		});
+	}
+};
+
 export const getposts = async (req, res, next) => {
 	try {
 		const startIndex = parseInt(req.query.startIndex) || 0;
@@ -52,6 +74,7 @@ export const getposts = async (req, res, next) => {
 					},
 				],
 			}),
+			status: "approved",
 		})
 			.sort({ updatedAt: sortDirection })
 			.skip(startIndex)
@@ -110,6 +133,16 @@ export const updatepost = async (req, res, next) => {
 		);
 	}
 	try {
+		const post = await Post.findById(req.params.postId);
+		if (!post) {
+			return next(errorHandler(404, "Post not found"));
+		}
+
+		let newStatus = post.status;
+		if (post.status === 'rejected') {
+			newStatus = 'pending';
+		}
+
 		const updatedPost = await Post.findByIdAndUpdate(
 			req.params.postId,
 			{
@@ -118,6 +151,7 @@ export const updatepost = async (req, res, next) => {
 					content: req.body.content,
 					category: req.body.category,
 					image: req.body.image,
+					status: newStatus,
 				},
 			},
 			{ new: true }
@@ -152,7 +186,7 @@ export const getallposts = async (req, res, next) => {
 		const startIndex = parseInt(req.query.startIndex) || 0;
 		const limit = parseInt(req.query.limit) || 9;
 
-		// Fetch posts from the database with sorting and pagination
+		// Fetch posts from the database 
 		const posts = await Post.find()
 			.sort({ createdAt: -1 })
 			.skip(startIndex)
@@ -207,7 +241,7 @@ export const searchPosts = async (req, res, next) => {
 			];
 		}
 
-		const posts = await Post.find(query);
+		const posts = await Post.find(query).populate('userId', 'username fullname email');
 		res.status(200).json(posts);
 	} catch (error) {
 		next(error);
@@ -229,7 +263,7 @@ export const getpostsbystatus = async (req, res, next) => {
 		// Send response with the fetched posts
 		res.status(200).json({
 			success: true,
-			message: "A list of all published posts",
+			message: "A list of all posts",
 			posts: posts,
 		});
 	} catch (err) {
@@ -253,7 +287,7 @@ export const searchPostsByStatus = async (req, res, next) => {
 				{ category: { $regex: searchtext, $options: "i" } },
 			];
 		}
-		const posts = await Post.find(query);
+		const posts = await Post.find(query).populate('userId', 'username fullname email');;
 		res.status(200).json(posts);
 	} catch (error) {
 		next(error);
