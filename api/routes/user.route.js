@@ -7,7 +7,9 @@ import {
   test,
   updateUser,
   updatePassword,
-  searchUsers
+  searchUsers,
+  updateInfoUser,
+  updateRole,
 } from '../controllers/user.controller.js';
 import { verifyToken } from '../utils/verifyUser.js';
 
@@ -16,6 +18,8 @@ const router = express.Router();
 router.get('/test', test);
 router.put('/update/:userId', verifyToken, updateUser);
 router.put('/changepassword/:userId', verifyToken, updatePassword);
+router.put('/info/update/:userId', verifyToken, updateInfoUser);
+router.put('/update/info/role/:userId', verifyToken, updateRole);
 router.delete('/delete/:userId', verifyToken, deleteUser);
 router.post('/signout', signout);
 router.get('/getusers', verifyToken, getUsers);

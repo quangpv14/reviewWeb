@@ -15,6 +15,7 @@ import {
 	searchPostsByStatus,
 	viewPost,
 	getpostinfo,
+	approvepost,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -34,12 +35,12 @@ router.put(
 	verifyIsAdminOrNonBlockedUser,
 	updatepost
 );
+router.put("/approvepost/update", verifyToken, approvepost);
 router.put("/viewpost/:postId/:userId", verifyToken, viewPost);
 router.get("/user/:userId", getallpostsbyuserid);
 router.get("/filterposts/search", searchPosts);
 router.get("/getpostsbystatus", verifyToken, getpostsbystatus);
 router.get("/filterpostsbystatus/search", searchPostsByStatus);
 router.get("/getpost/info", getpostinfo);
-
 
 export default router;

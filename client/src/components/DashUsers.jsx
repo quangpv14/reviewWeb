@@ -26,6 +26,28 @@ const vietnamProvinces = [
   'Vĩnh Long', 'Vĩnh Phúc', 'Yên Bái'
 ];
 
+function checkRegion(city, region) {
+  const northernVietnamProvinces = ['Hà Giang', 'Cao Bằng', 'Lào Cai', 'Bắc Kạn', 'Lạng Sơn', 'Tuyên Quang', 'Yên Bái', 'Thái Nguyên', 'Phú Thọ', 'Bắc Giang',
+    'Quảng Ninh', 'Bắc Ninh', 'Hà Nội', 'Vĩnh Phúc', 'Hưng Yên', 'Hải Dương', 'Hải Phòng', 'Thái Bình', 'Hà Nam', 'Nam Định',
+    'Ninh Bình'
+  ];
+  const centralVietnamProvinces = ['Đà Nẵng', 'Huế', 'Quảng Nam', 'Quảng Bình', 'Quảng Trị', 'Thừa Thiên Huế', 'Bình Định', 'Phú Yên', 'Khánh Hòa', 'Ninh Thuận', 'Bình Thuận', 'Kon Tum', 'Gia Lai', 'Đắk Lắk', 'Đắk Nông', 'Lâm Đồng', 'Thanh Hóa', 'Nghệ An', 'Hà Tĩnh', 'Quảng Ngãi'];
+  const southernVietnamProvinces = ['TP.Hồ Chí Minh', 'Cần Thơ', 'Bình Dương', 'Đồng Nai', 'Long An', 'Tiền Giang', 'Bến Tre', 'Vĩnh Long', 'Trà Vinh', 'Tây Ninh', 'Bà Rịa - Vũng Tàu', 'An Giang', 'Bạc Liêu', 'Bình Phước', 'Bình Thuận', 'Cà Mau', 'Đắk Nông', 'Đồng Tháp', 'Hậu Giang', 'Kiên Giang', 'Lâm Đồng', 'Ninh Thuận', 'Sóc Trăng', 'Tây Ninh', 'Vĩnh Long'];
+
+  let provinceList = [];
+  if (region.toLowerCase() === 'miền bắc') {
+    provinceList = northernVietnamProvinces;
+  } else if (region.toLowerCase() === 'miền trung') {
+    provinceList = centralVietnamProvinces;
+  } else if (region.toLowerCase() === 'miền nam') {
+    provinceList = southernVietnamProvinces;
+  } else {
+    console.log("Không thuộc miền nào cả");
+  }
+
+  return provinceList.includes(city);
+}
+
 export default function DashUsers() {
   const { currentUser, error } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
@@ -51,7 +73,8 @@ export default function DashUsers() {
     username: '',
     email: '',
     place: '',
-    region: ''
+    region: '',
+    isBlock: false
   });
 
   useEffect(() => {
@@ -102,7 +125,8 @@ export default function DashUsers() {
       username: user.username || '',
       email: user.email || '',
       place: user.place || '',
-      region: user.region || ''
+      region: user.region || '',
+      isBlock: user.isBlock || false
     });
     setShowEditModal(true);
   };
@@ -112,6 +136,14 @@ export default function DashUsers() {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [id]: value,
+    }));
+  };
+
+  const handleIsBlockChange = (e) => {
+    const { checked } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      isBlock: checked,
     }));
   };
 
@@ -142,9 +174,13 @@ export default function DashUsers() {
     e.preventDefault();
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
+
+    if (!checkRegion(formData.place, formData.region)) {
+      return setUpdateUserError('Please choose place or region again.')
+    }
     try {
       dispatch(updateStart());
-      const res = await fetch(`/api/user/update/${userToEdit._id}`, {
+      const res = await fetch(`/api/user/info/update/${userToEdit._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -229,7 +265,7 @@ export default function DashUsers() {
         </h1>
       </div>
 
-      <div className='w-full w-[1200px]'>
+      <div className=' w-[1200px]'>
         <div className='flex space-x-4 justify-between mb-5'>
           <div className='flex space-x-4 justify-between mb-5'>
             <TextInput type="text" placeholder="Please enter words to search" id="search" onChange={handleFilterChange} value={filters} aria-label="Search" style={{ width: '280px' }} />
@@ -258,13 +294,15 @@ export default function DashUsers() {
             <Table.Head>
               <Table.HeadCell>STT</Table.HeadCell>
               <Table.HeadCell>Date created</Table.HeadCell>
-              <Table.HeadCell>User image</Table.HeadCell>
               <Table.HeadCell>Fullname</Table.HeadCell>
               <Table.HeadCell>Username</Table.HeadCell>
               <Table.HeadCell>Email</Table.HeadCell>
               <Table.HeadCell>Admin</Table.HeadCell>
+              <Table.HeadCell>Status</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
               <Table.HeadCell>Edit</Table.HeadCell>
+
+
             </Table.Head>
             {users.map((user, index) => (
               <Table.Body className='divide-y' key={user._id}>
@@ -276,13 +314,7 @@ export default function DashUsers() {
                   <Table.Cell>
                     {new Date(user.createdAt).toISOString().substring(0, 10)}
                   </Table.Cell>
-                  <Table.Cell>
-                    <img
-                      src={user.profilePicture}
-                      alt={user.username}
-                      className='w-10 h-10 object-cover bg-gray-500 rounded-full'
-                    />
-                  </Table.Cell>
+
                   <Table.Cell>{user.fullname}</Table.Cell>
                   <Table.Cell>{user.username}</Table.Cell>
                   <Table.Cell>{user.email}</Table.Cell>
@@ -291,6 +323,13 @@ export default function DashUsers() {
                       <FaCheck className='text-green-500' />
                     ) : (
                       <FaTimes className='text-red-500' />
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {user.isBlock ? (
+                      <span className='text-red-500'>Block</span>
+                    ) : (
+                      <span className='text-green-500'>Normal</span>
                     )}
                   </Table.Cell>
                   <Table.Cell>
@@ -513,6 +552,18 @@ export default function DashUsers() {
                         <option value="Miền Nam">Miền Nam</option>
                       </Select>
                     </div>
+
+                    <div className='mb-1 ml-3'>
+                      <Label htmlFor="isBlock" value="Block" className='mr-2 mt-1 text-xl text-center' />
+                      <input
+                        type="checkbox"
+                        id="isBlock"
+                        checked={formData.isBlock}
+                        onChange={handleIsBlockChange}
+                        className='w-4 h-4 mb-1'
+                      />
+                    </div>
+
                   </div>
                   {/* Add input fields for other user information */}
                   <div className='flex justify-center gap-4 mt-4'>

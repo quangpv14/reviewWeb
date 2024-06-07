@@ -3,13 +3,17 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { IoSearchSharp } from "react-icons/io5";
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 export default function DashPendingPosts() {
     const { currentUser } = useSelector((state) => state.user);
     const [approvedPosts, setApprovedPosts] = useState([]);
     const [postStatus, setPostStatus] = useState('pending');
+    const [showModal, setShowModal] = useState(false);
     const [showMore, setShowMore] = useState(true);
+    const [postIdToDelete, setPostIdToDelete] = useState('');
     const [filters, setFilters] = useState('');
+    const [deleteSuccess, setDeleteSuccess] = useState(null);
 
 
     useEffect(() => {
@@ -72,6 +76,33 @@ export default function DashPendingPosts() {
         }
     };
 
+    const handleDeletePost = async () => {
+
+        try {
+            const res = await fetch(
+                `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
+                {
+                    method: 'DELETE',
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                console.log(data.message);
+            } else {
+                setApprovedPosts((prev) =>
+                    prev.filter((post) => post._id !== postIdToDelete)
+                );
+                setDeleteSuccess("Deleted this posts successfully");
+
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 2000);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
     const handleRefresh = async () => {
         try {
             const res = await fetch(`/api/post/getpostsbystatus?status=${postStatus}`);
@@ -124,10 +155,8 @@ export default function DashPendingPosts() {
 
                                 <Table.HeadCell>Category</Table.HeadCell>
                                 <Table.HeadCell>Status</Table.HeadCell>
-
-                                {/* <Table.HeadCell>
-                                <span>Edit</span>
-                            </Table.HeadCell> */}
+                                <Table.HeadCell>Delete</Table.HeadCell>
+                                <Table.HeadCell>Edit</Table.HeadCell>
                             </Table.Head>
                             {approvedPosts.map((post, index) => (
                                 <Table.Body className='divide-y'>
@@ -152,25 +181,25 @@ export default function DashPendingPosts() {
 
                                         <Table.Cell>{post.category.charAt(0).toUpperCase() + post.category.slice(1)}</Table.Cell>
                                         <Table.Cell style={{ color: 'orange' }}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</Table.Cell>
-                                        {/* <Table.Cell>
-                                        <span
-                                            onClick={() => {
-                                                setShowModal(true);
-                                                setPostIdToDelete(post._id);
-                                            }}
-                                            className='font-medium text-red-500 hover:underline cursor-pointer'
-                                        >
-                                            Delete
-                                        </span>
-                                    </Table.Cell> */}
-                                        {/* <Table.Cell>
-                                        <Link
-                                            className='text-teal-500 hover:underline'
-                                            to={`/update-post/${post._id}`}
-                                        >
-                                            <span>Edit</span>
-                                        </Link>
-                                    </Table.Cell> */}
+                                        <Table.Cell>
+                                            <span
+                                                onClick={() => {
+                                                    setShowModal(true);
+                                                    setPostIdToDelete(post._id);
+                                                }}
+                                                className='font-medium text-red-500 hover:underline cursor-pointer'
+                                            >
+                                                Delete
+                                            </span>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <Link
+                                                className='text-teal-500 hover:underline'
+                                                to={`/approvedpost/${post.slug}`}
+                                            >
+                                                <span>Edit</span>
+                                            </Link>
+                                        </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
                             ))}
@@ -188,6 +217,41 @@ export default function DashPendingPosts() {
                     <h1 className='text-center'>There are no pending posts yet!</h1>
                 )
             }
+            <Modal
+                show={showModal}
+                onClose={() => {
+                    setShowModal(false);
+                    setDeleteSuccess(null);
+                }
+                }
+                popup
+                size='md'
+            >
+                <Modal.Header />
+                <Modal.Body>
+                    <div className='text-center'>
+                        <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
+                        <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                            Are you sure you want to delete this post?
+                        </h3>
+                        <div className='flex justify-center gap-4'>
+                            <Button color='failure' onClick={handleDeletePost}>
+                                Yes, I'm sure
+                            </Button>
+                            <Button color='gray' onClick={() => setShowModal(false)}>
+                                No, cancel
+                            </Button>
+                        </div>
+                    </div>
+                    {
+                        deleteSuccess && (
+                            <Alert color='success' className='mt-5'>
+                                {deleteSuccess}
+                            </Alert>
+                        )
+                    }
+                </Modal.Body>
+            </Modal>
         </div >
     );
 }

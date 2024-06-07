@@ -1,9 +1,11 @@
-import { Button, Spinner } from 'flowbite-react';
+import { Button, Spinner, Modal } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
+import { HiCheck } from "react-icons/hi";
+import { useSelector } from 'react-redux';
 import { FaEdit } from "react-icons/fa";
 
 export default function ApprovedPost() {
@@ -12,9 +14,12 @@ export default function ApprovedPost() {
     const [error, setError] = useState(false);
     const [post, setPost] = useState(null);
     const [recentPosts, setRecentPosts] = useState(null);
+    const [approvedSuccess, setApprovedSuccess] = useState(null);
+    const [rejectSuccess, setRejectSuccess] = useState(null);
     const [tableOfContents, setTableOfContents] = useState([]);
     const approvedPosts = "approved";
-
+    const { currentUser } = useSelector((state) => state.user);
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchPost = async () => {
             try {
@@ -82,6 +87,56 @@ export default function ApprovedPost() {
         modifyPostContent();
     }, [post]);
 
+    const handleRejectedPost = async () => {
+        try {
+
+            const response = await fetch(`/api/post/approvepost/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ slug: postSlug, status: 'rejected' }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRejectSuccess(true);
+                setTimeout(() => {
+                    navigate('/dashboard?tab=rejectedposts');
+                }, 3000);
+            } else {
+                console.log(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleApprovedPost = async () => {
+        try {
+
+            const response = await fetch(`/api/post/approvepost/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ slug: postSlug, status: 'approved' }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setApprovedSuccess(true);
+                setTimeout(() => {
+                    navigate('/dashboard?tab=publishedposts');
+                }, 3000);
+            } else {
+                console.log(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     if (loading)
         return (
             <div className='flex justify-center items-center min-h-screen'>
@@ -98,8 +153,8 @@ export default function ApprovedPost() {
 
                 {/* Phần bên phải */}
                 <div className='flex items-center space-x-4'>
-                    <button className='bg-red-500 text-white px-4 py-2 rounded'>Từ chối</button>
-                    <button className='bg-green-500 text-white px-4 py-2 rounded'>Phê duyệt</button>
+                    <button className='bg-red-500 text-white px-4 py-2 rounded' onClick={handleRejectedPost}>Từ chối</button>
+                    <button className='bg-green-500 text-white px-4 py-2 rounded' onClick={handleApprovedPost}>Phê duyệt</button>
                 </div>
             </div>
             <h1 className='text-3xl mt-10 p-3 text-center max-w-3xl mx-auto lg:text-4xl'>
@@ -163,6 +218,80 @@ export default function ApprovedPost() {
                         recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
                 </div>
             </div>
+
+            <Modal
+                show={approvedSuccess}
+                size="md"
+                onClose={() => {
+                    setApprovedSuccess(false);
+                    navigate(`/dashboard?tab=publishedposts`);
+                }}
+                popup
+            >
+
+                <Modal.Body className='p-0'>
+                    <div className='text-center'>
+                        <div className='flex items-center justify-center bg-green-500'>
+                            <HiCheck className="mx-auto mb-3 h-7 w-7 rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200 mt-3" />
+                        </div>
+                        <div className='flex items-center justify-center h-[70px]'>
+                            <h2 className="text-3xl font-bold text-green-500">Success!</h2>
+                        </div>
+
+                        <h3 className="mb-5 text-md font-normal text-gray-500 dark:text-gray-400">
+                            Approved this post successfully. The system will automatically redirect to this approved posts page!
+                        </h3>
+
+                        <div className="flex justify-center gap-4">
+                            <Button color="success" className='w-[120px] mb-4'
+                                onClick={() => {
+                                    setApprovedSuccess(false);
+                                    onClose();
+                                }}
+                            >
+                                {"Okay"}
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={rejectSuccess}
+                size="md"
+                onClose={() => {
+                    setRejectSuccess(false);
+                    navigate(`/dashboard?tab=rejectedposts`);
+                }}
+                popup
+            >
+
+                <Modal.Body className='p-0'>
+                    <div className='text-center'>
+                        <div className='flex items-center justify-center bg-green-500'>
+                            <HiCheck className="mx-auto mb-3 h-7 w-7 rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200 mt-3" />
+                        </div>
+                        <div className='flex items-center justify-center h-[70px]'>
+                            <h2 className="text-3xl font-bold text-green-500">Success!</h2>
+                        </div>
+
+                        <h3 className="mb-5 text-md font-normal text-gray-500 dark:text-gray-400">
+                            Rejected this post successfully. The system will automatically redirect to this rejected posts page!
+                        </h3>
+
+                        <div className="flex justify-center gap-4">
+                            <Button color="success" className='w-[120px] mb-4'
+                                onClick={() => {
+                                    setRejectSuccess(false);
+                                    onClose();
+                                }}
+                            >
+                                {"Okay"}
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </main>
     );
 }

@@ -94,7 +94,7 @@ export default function PostPage() {
         {post && post.status === 'rejected' && (
           <div className='flex justify-center items-center p-1 mx-auto w-full text-center text-2xl'>
             <h1 className='mr-2'>Bài viết đã bị từ chối!</h1>
-            <span className='text-red-500'>{"abcdạhdajkhsadnj"}</span>
+            <span className='text-red-500'>{""}</span>
             <Link
               to={`/update-post/${post._id}`}
               className='ml-5 flex items-center text-xl border'

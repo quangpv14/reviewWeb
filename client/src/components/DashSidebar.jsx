@@ -153,6 +153,16 @@ export default function DashSidebar() {
                   Comments
                 </Sidebar.Item>
               </Link>
+              <Link to='/dashboard?tab=author'>
+                <Sidebar.Item
+                  style={tab === 'author' ? selectedButtonStyle : {}}
+                  active={tab === 'author'}
+                  icon={HiAnnotation}
+                  as='div'
+                >
+                  Authorization
+                </Sidebar.Item>
+              </Link>
             </>
           )}
           <Sidebar.Item

@@ -293,3 +293,26 @@ export const searchPostsByStatus = async (req, res, next) => {
 		next(error);
 	}
 };
+
+
+export const approvepost = async (req, res, next) => {
+	if (!req.user.isAdmin) {
+		return next(
+			errorHandler(403, "You are not allowed to approve this post")
+		);
+	}
+	const { slug, status } = req.body;
+
+	try {
+
+		const post = await Post.findOneAndUpdate({ slug }, { status }, { new: true });
+
+		if (!post) {
+			return res.status(404).json({ message: 'Post not found' });
+		}
+
+		res.status(200).json({ status: post.status });
+	} catch (error) {
+		next(error);
+	}
+};

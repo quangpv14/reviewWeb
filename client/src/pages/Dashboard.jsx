@@ -10,7 +10,8 @@ import DashboardComp from '../components/DashboardComp';
 import DashPublishedPosts from '../components/DashPublishedPost';
 import DashPendingPosts from '../components/DashPendingPost';
 import DashRejectedPosts from '../components/DashRejectedPost';
-import ApprovedPost from '../components/ApprovedPost';
+//import ApprovedPost from '../components/ApprovedPost';
+import DashAuthor from '../components/DashAuthor';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -48,7 +49,7 @@ export default function Dashboard() {
       {/* dashboard comp */}
       {tab === 'dash' && <DashboardComp />}
 
-      {/* {tab === 'posts/:postId' && <ApprovedPost />} */}
+      {tab === 'author' && <DashAuthor />}
     </div>
   );
 }

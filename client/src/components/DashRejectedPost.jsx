@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { IoSearchSharp } from "react-icons/io5";
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
+
 
 export default function DashRejectedPosts() {
     const { currentUser } = useSelector((state) => state.user);
@@ -11,6 +13,9 @@ export default function DashRejectedPosts() {
     const [showMore, setShowMore] = useState(true);
     const [filters, setFilters] = useState('');
 
+    const [deleteSuccess, setDeleteSuccess] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [postIdToDelete, setPostIdToDelete] = useState('');
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -90,6 +95,33 @@ export default function DashRejectedPosts() {
         setFilters('');
     }
 
+    const handleDeletePost = async () => {
+
+        try {
+            const res = await fetch(
+                `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
+                {
+                    method: 'DELETE',
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                console.log(data.message);
+            } else {
+                setRejectedPosts((prev) =>
+                    prev.filter((post) => post._id !== postIdToDelete)
+                );
+                setDeleteSuccess("Deleted this posts successfully");
+
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 2000);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
     return (
         <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
             <div>
@@ -124,7 +156,7 @@ export default function DashRejectedPosts() {
                                 <Table.HeadCell className='w-[150px] text-center'>Date Approved</Table.HeadCell>
                                 <Table.HeadCell>Category</Table.HeadCell>
                                 <Table.HeadCell>Status</Table.HeadCell>
-                                <Table.HeadCell>Notice</Table.HeadCell>
+                                <Table.HeadCell>Delete</Table.HeadCell>
                                 {/* <Table.HeadCell>
                                 <span>Edit</span>
                             </Table.HeadCell> */}
@@ -155,14 +187,17 @@ export default function DashRejectedPosts() {
                                         <Table.Cell>{post.category.charAt(0).toUpperCase() + post.category.slice(1)}</Table.Cell>
                                         <Table.Cell style={{ color: 'red' }}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</Table.Cell>
 
-                                        {/* <Table.Cell>
-                                        <Link
-                                            className='text-teal-500 hover:underline'
-                                            to={`/update-post/${post._id}`}
-                                        >
-                                            <span>Edit</span>
-                                        </Link>
-                                    </Table.Cell> */}
+                                        <Table.Cell>
+                                            <span
+                                                onClick={() => {
+                                                    setShowModal(true);
+                                                    setPostIdToDelete(post._id);
+                                                }}
+                                                className='font-medium text-red-500 hover:underline cursor-pointer'
+                                            >
+                                                Delete
+                                            </span>
+                                        </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
                             ))}
@@ -180,6 +215,42 @@ export default function DashRejectedPosts() {
                     <h1 className='text-center'>There are no rejected posts yet!</h1>
                 )
             }
+            <Modal
+                show={showModal}
+                onClose={() => {
+                    setShowModal(false);
+                    setDeleteSuccess(null);
+                }
+                }
+                popup
+                size='md'
+            >
+                <Modal.Header />
+                <Modal.Body>
+                    <div className='text-center'>
+                        <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
+                        <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                            Are you sure you want to delete this post?
+                        </h3>
+                        <div className='flex justify-center gap-4'>
+                            <Button color='failure' onClick={handleDeletePost}>
+                                Yes, I'm sure
+                            </Button>
+                            <Button color='gray' onClick={() => setShowModal(false)}>
+                                No, cancel
+                            </Button>
+                        </div>
+                    </div>
+                    {
+                        deleteSuccess && (
+                            <Alert color='success' className='mt-5'>
+                                {deleteSuccess}
+                            </Alert>
+                        )
+                    }
+                </Modal.Body>
+            </Modal>
+
         </div >
     );
 }

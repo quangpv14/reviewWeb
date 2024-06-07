@@ -53,6 +53,54 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+export const updateInfoUser = async (req, res, next) => {
+  if (req.user.id !== req.params.userId && !req.user.isAdmin) {
+    return next(errorHandler(403, 'You are not allowed to update this user'));
+  }
+
+  if (req.body.username) {
+    if (req.body.username.length < 7 || req.body.username.length > 20) {
+      return next(
+        errorHandler(400, 'Username must be between 7 and 20 characters')
+      );
+    }
+    if (req.body.username.includes(' ')) {
+      return next(errorHandler(400, 'Username cannot contain spaces'));
+    }
+    // if (req.body.username !== req.body.username.toLowerCase()) {
+    //   return next(errorHandler(400, 'Username must be lowercase'));
+    // }
+    if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) {
+      return next(
+        errorHandler(400, 'Username can only contain letters and numbers')
+      );
+    }
+  }
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        $set: {
+          username: req.body.username,
+          profilePicture: req.body.profilePicture,
+          fullname: req.body.fullname,
+          gender: req.body.gender,
+          dateOfBirth: req.body.dateOfBirth,
+          place: req.body.place,
+          region: req.body.region,
+          phone: req.body.phone,
+          isBlock: req.body.isBlock
+        },
+      },
+      { new: true }
+    );
+    const { password, ...rest } = updatedUser._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteUser = async (req, res, next) => {
   if (!req.user.isAdmin && req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to delete this user'));
@@ -187,5 +235,38 @@ export const searchUsers = async (req, res, next) => {
     res.status(200).json(users);
   } catch (error) {
     next(error);
+  }
+};
+
+
+export const updateRole = async (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return next(errorHandler(403, 'You are not allowed to change role'));
+  }
+  const { listUsers } = req.body;
+
+  // Fetch all users from the db
+  const usersFromDB = await User.find({ _id: { $in: listUsers.map(user => user._id) } });
+
+  // Check if any user who is currently an Admin -> user
+  const demotedAdminCheck = listUsers.some(user => {
+    const userFromDB = usersFromDB.find(u => u._id.toString() === user._id);
+    return userFromDB && userFromDB.isAdmin && !user.isAdmin;
+  });
+
+  if (demotedAdminCheck) {
+    return next(errorHandler(400, 'Cannot demote an admin to a standard user'));
+  }
+
+  try {
+
+    for (const user of listUsers) {
+      await User.findByIdAndUpdate(user._id, { isAdmin: user.isAdmin }, { new: true });
+    }
+
+    res.status(200).json({ message: "Roles updated successfully." });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };

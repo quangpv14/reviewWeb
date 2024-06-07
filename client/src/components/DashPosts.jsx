@@ -166,7 +166,7 @@ export default function DashPosts() {
         </h1>
       </div>
 
-      <div className='w-full w-[1200px]'>
+      <div className='w-[1200px]'>
         <div className='flex space-x-4 justify-between mb-5'>
           <div className='flex space-x-4 justify-between mb-5'>
             <TextInput type="text" placeholder="Please enter words to search" id="search" onChange={handleFilterChange} value={filters} aria-label="Search" style={{ width: '280px' }} />
@@ -326,7 +326,11 @@ export default function DashPosts() {
       )}
       <Modal
         show={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => {
+          setShowModal(false);
+          setDeleteSuccess(null);
+        }
+        }
         popup
         size='md'
       >

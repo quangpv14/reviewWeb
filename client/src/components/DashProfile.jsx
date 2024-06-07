@@ -43,6 +43,7 @@ export default function DashProfile() {
   const [updateUserError, setUpdateUserError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
+
   const filePickerRef = useRef();
   const dispatch = useDispatch();
   const handleImageChange = (e) => {
