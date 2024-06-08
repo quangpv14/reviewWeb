@@ -283,21 +283,12 @@ export default function DashPosts() {
                     </span>
                   </Table.Cell>
                   <Table.Cell>
-                    {post.status === 'pending' ? (
-                      <Link
-                        className='text-teal-500 hover:underline'
-                        to={`/approvedpost/${post.slug}`}
-                      >
-                        <span>Edit</span>
-                      </Link>
-                    ) : (
-                      <Link
-                        className='text-teal-500 hover:underline'
-                        to={`/post/${post.slug}`}
-                      >
-                        <span>Edit</span>
-                      </Link>
-                    )}
+                    <Link
+                      className='text-teal-500 hover:underline'
+                      to={`/update-post-admin/${post._id}`}
+                    >
+                      <span>Edit</span>
+                    </Link>
                   </Table.Cell>
                   <Table.Cell>
                     <Link

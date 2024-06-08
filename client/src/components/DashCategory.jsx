@@ -69,7 +69,7 @@ export default function DashCategory() {
         setUpdateCateError(null);
         setUpdateCateSuccess(null);
         try {
-            dispatch(updateStart());
+            // dispatch(updateStart());
             const res = await fetch(`/api/category/update/${categoryToEdit._id}`, {
                 method: 'PUT',
                 headers: {

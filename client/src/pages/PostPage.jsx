@@ -214,20 +214,20 @@ export default function PostPage() {
         </Rating>
       </div>
 
-
-      <div className='p-3 max-w-2xl mx-auto w-full text-center flex justify-center'>
-        <h2 className='text-lg font-semibold mr-4'>Bài viết có hữu ích không?</h2>
-        <Rating size="md">
-          {Array.from({ length: 5 }, (_, index) => (
-            <Rating.Star
-              key={index}
-              filled={index < userRating}
-              onClick={() => handleRatingChange(index + 1)}
-            />
-          ))}
-        </Rating>
-      </div>
-
+      {post.status === "approved" && (
+        <div className='p-3 max-w-2xl mx-auto w-full text-center flex justify-center'>
+          <h2 className='text-lg font-semibold mr-4'>Bài viết có hữu ích không?</h2>
+          <Rating size="md">
+            {Array.from({ length: 5 }, (_, index) => (
+              <Rating.Star
+                key={index}
+                filled={index < userRating}
+                onClick={() => handleRatingChange(index + 1)}
+              />
+            ))}
+          </Rating>
+        </div>
+      )}
       {post.status === approvedPosts && (
         <CommentSection postId={post._id} />
 

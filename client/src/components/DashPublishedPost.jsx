@@ -124,9 +124,9 @@ export default function DashPublishedPosts() {
                                 <Table.HeadCell className='w-[150px] text-center'>Date Published</Table.HeadCell>
                                 <Table.HeadCell>Category</Table.HeadCell>
                                 <Table.HeadCell>Status</Table.HeadCell>
-                                {/* <Table.HeadCell>
-                                <span>Edit</span>
-                            </Table.HeadCell> */}
+                                <Table.HeadCell>
+                                    <span>Edit</span>
+                                </Table.HeadCell>
                             </Table.Head>
                             {approvedPosts.map((post, index) => (
                                 <Table.Body className='divide-y'>
@@ -164,14 +164,14 @@ export default function DashPublishedPosts() {
                                             Delete
                                         </span>
                                     </Table.Cell> */}
-                                        {/* <Table.Cell>
-                                        <Link
-                                            className='text-teal-500 hover:underline'
-                                            to={`/update-post/${post._id}`}
-                                        >
-                                            <span>Edit</span>
-                                        </Link>
-                                    </Table.Cell> */}
+                                        <Table.Cell>
+                                            <Link
+                                                className='text-teal-500 hover:underline'
+                                                to={`/update-post-admin/${post._id}`}
+                                            >
+                                                <span>Edit</span>
+                                            </Link>
+                                        </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
                             ))}

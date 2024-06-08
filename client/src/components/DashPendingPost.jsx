@@ -150,7 +150,7 @@ export default function DashPendingPosts() {
                         <Table hoverable className='shadow-md w-[1100px]'>
                             <Table.Head>
                                 <Table.HeadCell>Post title</Table.HeadCell>
-                                <Table.HeadCell className='w-max-[300px]'>Author</Table.HeadCell>
+                                <Table.HeadCell className='w-[250px]'>Author</Table.HeadCell>
                                 <Table.HeadCell className='text-center'>Date Created</Table.HeadCell>
 
                                 <Table.HeadCell>Category</Table.HeadCell>
