@@ -1,4 +1,4 @@
-import { Modal, Table, Button, TextInput, Alert } from 'flowbite-react';
+import { Modal, Table, Button, TextInput, Alert, Select } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ export default function DashPublishedPosts() {
     const [postStatus, setPostStatus] = useState('approved');
     const [showMore, setShowMore] = useState(true);
     const [filters, setFilters] = useState('');
-
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -18,9 +18,8 @@ export default function DashPublishedPosts() {
                 const res = await fetch(`/api/post/getpostsbystatus?status=${postStatus}`);
                 const data = await res.json();
                 if (res.ok) {
-                    const approvedPosts = data.posts;
-                    setApprovedPosts(approvedPosts);
-                    if (approvedPosts.length < 9) {
+                    setApprovedPosts(data.posts);
+                    if (data.posts.length < 9) {
                         setShowMore(false);
                     }
                 }
@@ -28,6 +27,20 @@ export default function DashPublishedPosts() {
                 console.log(error.message);
             }
         };
+        const fetchCategory = async () => {
+            try {
+                const res = await fetch(`/api/category/getallcategory`);
+                const data = await res.json();
+                if (res.ok) {
+                    setCategories(data.categories);
+
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
+        fetchCategory();
         if (currentUser.isAdmin) {
             fetchPosts();
         }
@@ -36,12 +49,11 @@ export default function DashPublishedPosts() {
     const handleShowMore = async () => {
         const startIndex = approvedPosts.length;
         try {
-            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}`);
+            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}&status=${postStatus}`);
             const data = await res.json();
             if (res.ok) {
-                const approvedPosts = data.posts;
-                setApprovedPosts((prev) => [...prev, ...approvedPosts]);
-                if (approvedPosts.length < 9) {
+                setApprovedPosts((prev) => [...prev, ...data.posts]);
+                if (data.posts.length < 9) {
                     setShowMore(false);
                 }
             }
@@ -54,10 +66,24 @@ export default function DashPublishedPosts() {
         setFilters(e.target.value);
     };
 
+    const handleFilterCategory = async (e) => {
+        try {
+            const res = await fetch(`/api/post/getpost/all/filters?categoryName=${e.target.value}&status=${postStatus}`);
+            const data = await res.json();
+            if (res.ok) {
+                setShowMore(false);
+                setApprovedPosts(data.posts);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleFilter = async () => {
         const urlParams = new URLSearchParams();
         urlParams.set('searchtext', filters);
         urlParams.set('status', postStatus);
+        if (!filters) return;
         try {
             const response = await fetch(`/api/post/filterpostsbystatus/search?${urlParams}`);
             const dataSearch = await response.json();
@@ -79,9 +105,10 @@ export default function DashPublishedPosts() {
             if (res.ok) {
                 const approvedPosts = data.posts;
                 setApprovedPosts(approvedPosts);
-                if (approvedPosts.length < 9) {
-                    setShowMore(false);
-                }
+                // if (approvedPosts.length < 9) {
+                //     setShowMore(false);
+                // }
+                setShowMore(true);
             }
         } catch (error) {
             console.log(error.message);
@@ -110,6 +137,18 @@ export default function DashPublishedPosts() {
                             Refresh
                         </Button>
                     </div>
+                    <div className='flex h-[43px]'>
+                        <Select
+                            onChange={handleFilterCategory}
+                        >
+                            <option value='uncategorized'>Select a category</option>
+                            {categories.map(category => (
+                                <option key={category._id} value={category.categoryName}>
+                                    {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                                </option>
+                            ))}
+                        </Select>
+                    </div>
                 </div>
             </div>
 
@@ -121,7 +160,7 @@ export default function DashPublishedPosts() {
                                 <Table.HeadCell>Post title</Table.HeadCell>
                                 <Table.HeadCell className='w-max-[300px]'>Author</Table.HeadCell>
                                 <Table.HeadCell className='text-center'>Date Created</Table.HeadCell>
-                                <Table.HeadCell className='w-[150px] text-center'>Date Published</Table.HeadCell>
+                                {/* <Table.HeadCell className='w-[150px] text-center'>Date Published</Table.HeadCell> */}
                                 <Table.HeadCell>Category</Table.HeadCell>
                                 <Table.HeadCell>Status</Table.HeadCell>
                                 <Table.HeadCell>
@@ -148,9 +187,9 @@ export default function DashPublishedPosts() {
                                         <Table.Cell className='w-[140px] text-center'>
                                             {new Date(post.createdAt).toLocaleDateString()}
                                         </Table.Cell>
-                                        <Table.Cell className='w-[140px] text-center'>
+                                        {/* <Table.Cell className='w-[140px] text-center'>
                                             {new Date(post.updatedAt).toLocaleDateString()}
-                                        </Table.Cell>
+                                        </Table.Cell> */}
                                         <Table.Cell>{post.category.charAt(0).toUpperCase() + post.category.slice(1)}</Table.Cell>
                                         <Table.Cell style={{ color: 'green' }}>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</Table.Cell>
                                         {/* <Table.Cell>

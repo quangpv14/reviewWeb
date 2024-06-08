@@ -1,4 +1,4 @@
-import { Modal, Table, Button, TextInput, Alert } from 'flowbite-react';
+import { Modal, Table, Button, TextInput, Alert, Select } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -16,6 +16,7 @@ export default function DashRejectedPosts() {
     const [deleteSuccess, setDeleteSuccess] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState('');
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -33,6 +34,19 @@ export default function DashRejectedPosts() {
                 console.log(error.message);
             }
         };
+        const fetchCategory = async () => {
+            try {
+                const res = await fetch(`/api/category/getallcategory`);
+                const data = await res.json();
+                if (res.ok) {
+                    setCategories(data.categories);
+
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+        fetchCategory();
         if (currentUser.isAdmin) {
             fetchPosts();
         }
@@ -41,7 +55,7 @@ export default function DashRejectedPosts() {
     const handleShowMore = async () => {
         const startIndex = rejectedPosts.length;
         try {
-            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}`);
+            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}&status=${postStatus}`);
             const data = await res.json();
             if (res.ok) {
                 const rejectedPosts = data.posts;
@@ -59,10 +73,24 @@ export default function DashRejectedPosts() {
         setFilters(e.target.value);
     };
 
+    const handleFilterCategory = async (e) => {
+        try {
+            const res = await fetch(`/api/post/getpost/all/filters?categoryName=${e.target.value}&status=${postStatus}`);
+            const data = await res.json();
+            if (res.ok) {
+                setShowMore(false);
+                setRejectedPosts(data.posts);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleFilter = async () => {
         const urlParams = new URLSearchParams();
         urlParams.set('searchtext', filters);
         urlParams.set('status', postStatus);
+        if (!filters) return;
         try {
             const response = await fetch(`/api/post/filterpostsbystatus/search?${urlParams}`);
             const dataSearch = await response.json();
@@ -141,6 +169,18 @@ export default function DashRejectedPosts() {
                         <Button onClick={handleRefresh} className='bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-700'>
                             Refresh
                         </Button>
+                    </div>
+                    <div className='flex h-[43px]'>
+                        <Select
+                            onChange={handleFilterCategory}
+                        >
+                            <option value='uncategorized'>Select a category</option>
+                            {categories.map(category => (
+                                <option key={category._id} value={category.categoryName}>
+                                    {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                                </option>
+                            ))}
+                        </Select>
                     </div>
                 </div>
             </div>

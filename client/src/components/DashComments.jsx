@@ -90,6 +90,9 @@ export default function DashComments() {
               <IoSearchSharp className="mr-3 h-5 w-5" style={{ fontWeight: 'bold' }} />
               Search
             </Button>
+            <Button className='bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-700'>
+              Refresh
+            </Button>
           </div>
         </div>
       </div>

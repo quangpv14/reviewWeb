@@ -1,4 +1,4 @@
-import { Modal, Table, Button, TextInput, Alert } from 'flowbite-react';
+import { Modal, Table, Button, TextInput, Alert, Select } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -14,6 +14,8 @@ export default function DashPendingPosts() {
     const [postIdToDelete, setPostIdToDelete] = useState('');
     const [filters, setFilters] = useState('');
     const [deleteSuccess, setDeleteSuccess] = useState(null);
+    const [categories, setCategories] = useState([]);
+    //const [filterCate, setFilterCate] = useState();
 
 
     useEffect(() => {
@@ -22,9 +24,9 @@ export default function DashPendingPosts() {
                 const res = await fetch(`/api/post/getpostsbystatus?status=${postStatus}`);
                 const data = await res.json();
                 if (res.ok) {
-                    const approvedPosts = data.posts;
-                    setApprovedPosts(approvedPosts);
-                    if (approvedPosts.length < 9) {
+                    //const approvedPosts = data.posts;
+                    setApprovedPosts(data.posts);
+                    if (data.posts.length < 9) {
                         setShowMore(false);
                     }
                 }
@@ -32,6 +34,21 @@ export default function DashPendingPosts() {
                 console.log(error.message);
             }
         };
+        const fetchCategory = async () => {
+            try {
+                const res = await fetch(`/api/category/getallcategory`);
+                const data = await res.json();
+                if (res.ok) {
+                    setCategories(data.categories);
+
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
+        fetchCategory();
+
         if (currentUser.isAdmin) {
             fetchPosts();
         }
@@ -40,12 +57,11 @@ export default function DashPendingPosts() {
     const handleShowMore = async () => {
         const startIndex = approvedPosts.length;
         try {
-            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}`);
+            const res = await fetch(`/api/post/getpostsbystatus?startIndex=${startIndex}&status=${postStatus}`);
             const data = await res.json();
             if (res.ok) {
-                const approvedPosts = data.posts;
-                setApprovedPosts((prev) => [...prev, ...approvedPosts]);
-                if (approvedPosts.length < 9) {
+                setApprovedPosts((prev) => [...prev, ...data.posts]);
+                if (data.posts.length < 9) {
                     setShowMore(false);
                 }
             }
@@ -58,10 +74,24 @@ export default function DashPendingPosts() {
         setFilters(e.target.value);
     };
 
+    const handleFilterCategory = async (e) => {
+        try {
+            const res = await fetch(`/api/post/getpost/all/filters?categoryName=${e.target.value}&status=${postStatus}`);
+            const data = await res.json();
+            if (res.ok) {
+                setShowMore(false);
+                setApprovedPosts(data.posts);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleFilter = async () => {
         const urlParams = new URLSearchParams();
         urlParams.set('searchtext', filters);
         urlParams.set('status', postStatus);
+        if (!filters) return;
         try {
             const response = await fetch(`/api/post/filterpostsbystatus/search?${urlParams}`);
             const dataSearch = await response.json();
@@ -108,11 +138,9 @@ export default function DashPendingPosts() {
             const res = await fetch(`/api/post/getpostsbystatus?status=${postStatus}`);
             const data = await res.json();
             if (res.ok) {
-                const approvedPosts = data.posts;
-                setApprovedPosts(approvedPosts);
-                if (approvedPosts.length < 9) {
-                    setShowMore(false);
-                }
+                setApprovedPosts(data.posts);
+                // 
+                setShowMore(true);
             }
         } catch (error) {
             console.log(error.message);
@@ -140,6 +168,18 @@ export default function DashPendingPosts() {
                         <Button onClick={handleRefresh} className='bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-700'>
                             Refresh
                         </Button>
+                    </div>
+                    <div className='flex h-[43px]'>
+                        <Select
+                            onChange={handleFilterCategory}
+                        >
+                            <option value='uncategorized'>Select a category</option>
+                            {categories.map(category => (
+                                <option key={category._id} value={category.categoryName}>
+                                    {category.categoryName.charAt(0).toUpperCase() + category.categoryName.slice(1)}
+                                </option>
+                            ))}
+                        </Select>
                     </div>
                 </div>
             </div>

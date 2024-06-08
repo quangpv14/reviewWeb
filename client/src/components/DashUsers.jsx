@@ -206,6 +206,7 @@ export default function DashUsers() {
   const handleFilter = async () => {
     const urlParams = new URLSearchParams();
     urlParams.set('searchtext', filters);
+    if (!filters) return;
     try {
       const response = await fetch(`/api/user/filterusers/search?${urlParams}`);
       const dataSearch = await response.json();

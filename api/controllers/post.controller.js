@@ -246,6 +246,7 @@ export const searchPosts = async (req, res, next) => {
 	}
 };
 
+//get limit post by status
 export const getpostsbystatus = async (req, res, next) => {
 	try {
 		const startIndex = parseInt(req.query.startIndex) || 0;
@@ -272,6 +273,33 @@ export const getpostsbystatus = async (req, res, next) => {
 		});
 	}
 };
+
+export const filterPostByStatus = async (req, res, next) => {
+	try {
+		const status = req.query.status;
+		const categoryName = req.query.categoryName;
+		const posts = await Post.find({
+			...(categoryName && { category: categoryName }),
+			...(status && { status: status }),
+		})
+			.sort({ createdAt: -1 })
+			.populate("userId");
+
+		// Send response with the fetched posts
+		res.status(200).json({
+			success: true,
+			message: "A list of posts",
+			posts: posts,
+		});
+	} catch (err) {
+		res.status(500).json({
+			success: false,
+			message: "Server error. Please try again.",
+			error: err.message,
+		});
+	}
+};
+
 
 export const searchPostsByStatus = async (req, res, next) => {
 	try {

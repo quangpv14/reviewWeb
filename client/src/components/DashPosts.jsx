@@ -13,7 +13,7 @@ export default function DashPosts() {
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [selectedValue, setSelectedValue] = useState('pending');
+  const [selectedValue, setSelectedValue] = useState('');
   const [postIdToDelete, setPostIdToDelete] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filters, setFilters] = useState('');
@@ -26,6 +26,7 @@ export default function DashPosts() {
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
+
           if (data.posts.length < 9) {
             setShowMore(false);
           }
@@ -87,13 +88,24 @@ export default function DashPosts() {
 
   };
 
-  const handleRadioChange = (e) => {
+  const handleRadioChange = async (e) => {
     setSelectedValue(e.target.value);
+    try {
+      const res = await fetch(`/api/post/getpost/all/filters?status=${e.target.value}`);
+      const data = await res.json();
+      if (res.ok) {
+        setShowMore(false);
+        setUserPosts(data.posts);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const handleFilter = async () => {
     const urlParams = new URLSearchParams();
     urlParams.set('searchtext', filters);
+    if (!filters) return;
     try {
       const response = await fetch(`/api/post/filterposts/search?${urlParams}`);
       const dataSearch = await response.json();
@@ -110,10 +122,11 @@ export default function DashPosts() {
 
   const handleRefresh = async () => {
     try {
+      let start = 0;
       const res = await fetch(`/api/post/getallposts`);
       const data = await res.json();
       if (res.ok) {
-        setUserPosts(data.posts);
+        setUserPosts((prev) => [...prev, ...data.posts]);
         if (data.posts.length < 9) {
           setShowMore(false);
         }
@@ -121,7 +134,7 @@ export default function DashPosts() {
     } catch (error) {
       console.log(error.message);
     }
-
+    setSelectedValue('');
     setFilters('');
   }
 
@@ -202,11 +215,11 @@ export default function DashPosts() {
                     onChange={handleRadioChange} />
                   <Label htmlFor="rejected">Rejected</Label>
                 </div>
-                <div className="flex items-center gap-2 mb-3 ml-1 mb-3">
+                {/* <div className="flex items-center gap-2 mb-3 ml-1 mb-3">
                   <Radio id="rejected" value="" name="bordered-radio" checked={selectedValue === ''}
                     onChange={handleRadioChange} />
                   <Label>All posts</Label>
-                </div>
+                </div> */}
               </fieldset>
             </Dropdown>
           </div>

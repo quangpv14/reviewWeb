@@ -123,6 +123,7 @@ export default function DashCategory() {
     const handleFilter = async () => {
         const urlParams = new URLSearchParams();
         urlParams.set('searchtext', filters);
+        if (!filters) return;
         try {
             const response = await fetch(`/api/category/filtercategory/search?${urlParams}`);
             const dataSearch = await response.json();
