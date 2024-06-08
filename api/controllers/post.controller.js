@@ -1,5 +1,6 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import Rating from "../models/ratingpost.model.js";
 import { errorHandler } from "../utils/error.js";
 import {
 	incrementTotalCount,
@@ -105,7 +106,8 @@ export const getposts = async (req, res, next) => {
 };
 
 export const deletepost = async (req, res, next) => {
-	if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+	console.log(req.user.id !== req.params.userId);
+	if (!req.user.isAdmin && req.user.id !== req.params.userId) {
 		return next(
 			errorHandler(403, "You are not allowed to delete this post")
 		);
@@ -338,6 +340,93 @@ export const approvepost = async (req, res, next) => {
 		}
 
 		res.status(200).json({ status: post.status });
+	} catch (error) {
+		next(error);
+	}
+};
+
+//get recent post
+
+export const getsuggestposts = async (req, res, next) => {
+	try {
+		const sortDirection = req.query.order === "asc" ? 1 : -1;
+		const userId = req.query.userId;
+		const postSlug = req.query.postSlug;
+
+
+		//lấy ra bài viết hiện tại
+		const currentPost = await Post.find({ slug: postSlug });
+		const currentPostId = currentPost._id;
+
+		//1. Get post recent
+		// Lấy danh sách các bài viết mà user đã rating
+		const ratedPostIds = await Rating.find({ userId }).select('postId');
+		// Nếu postId hiện tại không nằm trong danh sách các bài viết đã rating thì thêm vào chuỗi
+		if (currentPost && !ratedPostIds.includes(currentPostId)) {
+			ratedPostIds.push(currentPostId);
+		}
+
+		const recentposts = await Post.find({
+			_id: { $nin: ratedPostIds },
+			status: "approved",
+		})
+			.sort({ updatedAt: sortDirection })
+			.limit(3);
+
+
+		//2. Get 2 bài viết có rating cao nhất trong cùng category của bài post hiện tại
+		const topRatedPosts = await Post.find({
+			category: currentPost.category,
+			_id: { $ne: currentPostId },
+			status: "approved",
+		})
+			.sort({ rating: -1 })
+			.limit(2);
+
+
+		//3. Get ra các 6 category khác category của bài viết hiện tại có total rating cao
+
+		const categoryRatings = await Post.aggregate([
+			{
+				$match: { status: "approved" } // condition: status: "approved"
+			},
+			{
+				$group: {
+					_id: "$category",
+					totalRating: { $sum: "$rating" }
+				}
+			},
+			{
+				$sort: { totalRating: -1 } // Giảm dần
+			}
+		]);
+		// Loại trừ category của bài viết hiện tại khỏi danh sách
+		const filteredCategories = categoryRatings.filter(category => category._id !== currentPost.category);
+		// Lấy ra 6 category khác nhau có tổng số lượt đánh giá cao nhất
+		const topRatedCategories = filteredCategories.slice(0, 5);
+
+		//4. Get ra top 10 bài viết có rating cao nhất theo theo tuần
+		const now = new Date();
+		const oneWeekAgo = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate() - 7
+		);
+
+		const topSixPosts = await Post.find({
+			createdAt: { $gte: oneWeekAgo },
+			status: "approved",
+		})
+			.sort({ rating: -1 })
+			.limit(6);
+
+
+		res.status(200).json({
+			recentposts,
+			topRatedPosts,
+			topRatedCategories,
+			topSixPosts
+		});
 	} catch (error) {
 		next(error);
 	}

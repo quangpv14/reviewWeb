@@ -17,6 +17,7 @@ import {
 	getpostinfo,
 	approvepost,
 	filterPostByStatus,
+	getsuggestposts,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -44,5 +45,5 @@ router.get("/getpostsbystatus", verifyToken, getpostsbystatus);
 router.get("/filterpostsbystatus/search", searchPostsByStatus);
 router.get("/getpost/info", getpostinfo);
 router.get("/getpost/all/filters", verifyToken, filterPostByStatus);
-
+router.get("/getpost/review/rating/suggest", verifyToken, getsuggestposts);
 export default router;

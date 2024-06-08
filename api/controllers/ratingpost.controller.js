@@ -30,3 +30,20 @@ export const createRating = async (req, res, next) => {
         next(error);
     }
 };
+
+
+export const checkRating = async (req, res, next) => {
+    try {
+        const { userId, postId } = req.query;
+        let hasRated = false;
+        // Check if the user has already rated this post
+        const rating = await Rating.findOne({ userId, postId });
+        if (rating) {
+            hasRated = true;
+        }
+        return res.status(200).json({ hasRated: hasRated });
+    } catch (error) {
+        next(error);
+    }
+};
+

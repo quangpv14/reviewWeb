@@ -20,6 +20,11 @@ export default function MyPosts() {
   const { currentUser } = useSelector((state) => state.user);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const [showModal, setShowModal] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(null);
+  const handleChangeDelete = () => {
+    setShowModal(true);
+  }
   const fetchPosts = async () => {
     setLoading(true);
     const res = await fetch(`/api/post/user/${currentUser._id}`);
@@ -37,13 +42,13 @@ export default function MyPosts() {
     setPendingPosts(pending);
     setRejectedPosts(rejected);
 
-    if (approved.length > 0) {
+    if (approved.length >= 0) {
       setDisplayedApprovedPosts(approved.slice(0, 8));
     }
-    if (pending.length > 0) {
+    if (pending.length >= 0) {
       setDisplayedPendingPosts(pending.slice(0, 8));
     }
-    if (rejected.length > 0) {
+    if (rejected.length >= 0) {
       setDisplayedRejectedPosts(rejected.slice(0, 8));
     }
 
@@ -80,6 +85,32 @@ export default function MyPosts() {
     }
   };
 
+  const handleDeletePost = async (post) => {
+
+    try {
+      const res = await fetch(
+        `/api/post/deletepost/${post._id}/${currentUser._id}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        setDeleteSuccess("Deleted this posts successfully");
+
+        setTimeout(() => {
+          setShowModal(false);
+          fetchPosts();
+          setDeleteSuccess(null);
+        }, 2000);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   const openDialog = () => setIsDialogOpen(true);
   const closeDialog = () => {
     setIsDialogOpen(false);
@@ -113,7 +144,8 @@ export default function MyPosts() {
               <div className='pl-20'>
                 <div className='flex flex-wrap gap-4'>
                   {displayedRejectedPosts.length === 0 && <p className='text-xl text-gray-500'>No rejected posts found.</p>}
-                  {displayedRejectedPosts.map((post) => <PostDetail key={post._id} post={post} />)}
+                  {displayedRejectedPosts.map((post) => <PostDetail key={post._id} post={post} handleDeletePost={handleDeletePost}
+                    showModal={showModal} deleteSuccess={deleteSuccess} handleChangeDelete={handleChangeDelete} setShowModal={setShowModal} setDeleteSuccess={setDeleteSuccess} />)}
                 </div>
               </div>
               {displayedRejectedPosts.length < rejectedPosts.length && (
@@ -131,7 +163,8 @@ export default function MyPosts() {
               <div className='pl-20'>
                 <div className='flex flex-wrap gap-4'>
                   {displayedPendingPosts.length === 0 && <p className='text-xl text-gray-500'>No pending posts found.</p>}
-                  {displayedPendingPosts.map((post) => <PostDetail key={post._id} post={post} />)}
+                  {displayedPendingPosts.map((post) => <PostDetail key={post._id} post={post} handleDeletePost={handleDeletePost}
+                    showModal={showModal} deleteSuccess={deleteSuccess} handleChangeDelete={handleChangeDelete} setShowModal={setShowModal} setDeleteSuccess={setDeleteSuccess} />)}
                 </div>
               </div>
               {displayedPendingPosts.length < pendingPosts.length && (
@@ -149,7 +182,8 @@ export default function MyPosts() {
               <div className='pl-20 mb-10'>
                 <div className='flex flex-wrap gap-4'>
                   {displayedApprovedPosts.length === 0 && <p className='text-xl text-gray-500'>No approved posts found.</p>}
-                  {displayedApprovedPosts.map((post) => <PostDetail key={post._id} post={post} />)}
+                  {displayedApprovedPosts.map((post) => <PostDetail key={post._id} post={post} handleDeletePost={handleDeletePost}
+                    showModal={showModal} deleteSuccess={deleteSuccess} handleChangeDelete={handleChangeDelete} setShowModal={setShowModal} setDeleteSuccess={setDeleteSuccess} />)}
                 </div>
               </div>
               {displayedApprovedPosts.length < approvedPosts.length && (

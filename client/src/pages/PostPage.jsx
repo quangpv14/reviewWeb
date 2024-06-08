@@ -18,8 +18,9 @@ export default function PostPage() {
   const approvedPosts = "approved";
 
   const [userRating, setUserRating] = useState(0);
-
   const [hasRated, setHasRated] = useState(false);
+
+  const [topCategory, setTopCategory] = useState([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -47,19 +48,39 @@ export default function PostPage() {
   }, [postSlug]);
 
   useEffect(() => {
+
     try {
       const fetchRecentPosts = async () => {
-        const res = await fetch(`/api/post/getposts?limit=3`);
+        const res = await fetch(`/api/post/getpost/review/rating/suggest?userId=${currentUser._id}&postSlug=${postSlug}`);
         const data = await res.json();
         if (res.ok) {
-          setRecentPosts(data.posts);
+          setRecentPosts(data.recentposts);
+          setTopCategory(data.topRatedCategories);
         }
       };
       fetchRecentPosts();
     } catch (error) {
       console.log(error.message);
     }
+
   }, []);
+
+  useEffect(() => {
+    const checkUserRating = async () => {
+      if (currentUser && post) {
+        try {
+          const res = await fetch(`/api/rating/checkexist?userId=${currentUser._id}&postId=${post._id}`);
+          const data = await res.json();
+          if (res.ok) {
+            setHasRated(data.hasRated);
+          }
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    };
+    checkUserRating();
+  }, [currentUser, post]);
 
   useEffect(() => {
     const modifyPostContent = () => {
@@ -89,14 +110,6 @@ export default function PostPage() {
     modifyPostContent();
   }, [post]);
 
-  useEffect(() => {
-    // Check if the user has already rated this post: getItem from LocalStorage
-    const ratedPosts = JSON.parse(localStorage.getItem('ratedPosts')) || [];
-    if (ratedPosts.includes(postSlug)) {
-      setHasRated(true);
-      setUserRating(ratedPosts.find(post => post.slug === postSlug)?.rating || 0);
-    }
-  }, [postSlug]);
 
   const handleRatingChange = async (rating) => {
     if (hasRated) return;
@@ -112,12 +125,6 @@ export default function PostPage() {
       });
       if (res.ok) {
         const data = await res.json();
-
-        // Save data LocalStorage
-        const ratedPosts = JSON.parse(localStorage.getItem('ratedPosts')) || [];
-        ratedPosts.push({ slug: postSlug, rating });
-        localStorage.setItem('ratedPosts', JSON.stringify(ratedPosts));
-        setHasRated(true);
       }
     } catch (error) {
       console.log(error.message);
@@ -131,119 +138,133 @@ export default function PostPage() {
       </div>
     );
   return (
-    <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
-      <div className='flex justify-center items-center'>
-        {post && post.status === 'rejected' && (
-          <div className='flex justify-center items-center p-1 mx-auto w-full text-center text-2xl'>
-            <h1 className='mr-2'>Bài viết đã bị từ chối!</h1>
-            <span className='text-red-500'>{""}</span>
-            <Link
-              to={`/update-post/${post._id}`}
-              className='ml-5 flex items-center text-xl border'
-            >
-              <FaEdit />
-              Chỉnh sửa
-            </Link>
-          </div>
-        )}
-      </div>
-      <h1 className='text-3xl mt-10 p-3 text-center max-w-3xl mx-auto lg:text-4xl'>
-        {post && post.title}
-      </h1>
-      <Link
-        to={`/search?category=${post && post.category}`}
-        className='self-center mt-1'
-      >
-        <Button color='gray' pill size='xs'>
-          {post && post.category}
-        </Button>
-      </Link>
-      {post && post.status === 'pending' && (
-        <h1 className='p-3 max-w-2xl mx-auto w-full text-center text-2xl text-red-500'>
-          Bài viết đang chờ phê duyệt!
-        </h1>
-      )}
-      {tableOfContents.length > 0 && (
-        <div className='p-3 max-w-2xl mx-auto w-full text-left'>
-          <h2 className='text-lg font-semibold mb-2'>Table of Contents</h2>
-          <ul className='pl-4'>
-            {tableOfContents.map((item, index) => (
-              <li key={index} className='mb-1'>
-                <a
-                  href={`#header${index + 1}`}
-                  className='text-blue-500 hover:underline'
+    <div className='flex'>
+      <div className='w-1/6'>a</div>
+      <div className='w-2/3'>
+        <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
+          <div className='flex justify-center items-center'>
+            {post && post.status === 'rejected' && (
+              <div className='flex justify-center items-center p-1 mx-auto w-full text-center text-2xl'>
+                <h1 className='mr-2'>Bài viết đã bị từ chối!</h1>
+                <span className='text-red-500'>{""}</span>
+                <Link
+                  to={`/update-post/${post._id}`}
+                  className='ml-5 flex items-center text-xl border'
                 >
-                  {item.text}
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <FaEdit />
+                  Chỉnh sửa
+                </Link>
+              </div>
+            )}
+          </div>
+          <h1 className='text-3xl mt-10 p-3 text-center max-w-3xl mx-auto lg:text-4xl'>
+            {post && post.title}
+          </h1>
+          <Link
+            to={`/search?category=${post && post.category}`}
+            className='self-center mt-1'
+          >
+            <Button color='gray' pill size='xs'>
+              {post && post.category}
+            </Button>
+          </Link>
+          {post && post.status === 'pending' && (
+            <h1 className='p-3 max-w-2xl mx-auto w-full text-center text-2xl text-red-500'>
+              Bài viết đang chờ phê duyệt!
+            </h1>
+          )}
+          {tableOfContents.length > 0 && (
+            <div className='p-3 max-w-2xl mx-auto w-full text-left'>
+              <h2 className='text-lg font-semibold mb-2'>Table of Contents</h2>
+              <ul className='pl-4'>
+                {tableOfContents.map((item, index) => (
+                  <li key={index} className='mb-1'>
+                    <a
+                      href={`#header${index + 1}`}
+                      className='text-blue-500 hover:underline'
+                    >
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <img
+            src={post && post.image}
+            alt={post && post.title}
+            className='mt-10 p-3 max-h-[600px] w-[500px] object-cover mx-auto'
+          />
+          <div className='flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl text-xs'>
+            <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
+            <span className='italic'>
+              {post && (post.content.length / 1000).toFixed(0)} mins read
+            </span>
+          </div>
+          <div
+            className='p-3 max-w-2xl mx-auto w-full post-content text-left'
+            dangerouslySetInnerHTML={{ __html: post && post.content }}
+          ></div>
+
+          <div className='p-3 max-w-2xl mx-auto w-full text-center justify-center mb-3'>
+            <h2 className='text-lg font-semibold'>Post Rating</h2>
+            <div class="flex justify-center">
+              <svg class="w-4 h-4 text-yellow-300 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+              </svg>
+              <p class="ms-2 text-sm text-gray-900 dark:text-white">{post.rating}/5</p>
+
+            </div>
+          </div>
+
+          {post.status === "approved" && !hasRated && (
+            <div className='p-3 max-w-2xl mx-auto w-full text-center flex justify-center'>
+              <h2 className='text-lg font-semibold mr-4'>Bài viết có hữu ích không?</h2>
+              <Rating size="md">
+                {Array.from({ length: 5 }, (_, index) => (
+                  <Rating.Star
+                    key={index}
+                    filled={index < userRating}
+                    onClick={() => handleRatingChange(index + 1)}
+                  />
+                ))}
+              </Rating>
+            </div>
+          )}
+          {post.status === approvedPosts && (
+            <CommentSection postId={post._id} />
+
+          )}
+
+          <div className='max-w-4xl mx-auto w-full'>
+            <CallToAction />
+          </div>
+
+          <div className='flex flex-col justify-center items-center mb-5'>
+            <h1 className='text-xl mt-5'>Recent articles</h1>
+            <div className='flex flex-wrap gap-1 mt-5 justify-center'>
+              {recentPosts &&
+                recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+            </div>
+          </div>
+        </main>
+      </div>
+      <div className='w-1/6 mt-[200px]'>
+        <div className='text-xl mb-3 text-center font-bold'>Xu hướng</div>
+        <div className='grid grid-cols-2'>
+          {topCategory && topCategory.map((item, index) =>
+            <Link
+              to={`/search?category=${item && item._id}`}
+              className='self-center mt-1 flex items-center justify-center p-1'
+            >
+              <Button color='gray' pill size='xs'>
+                {item && item._id}
+              </Button>
+            </Link>
+          )}
         </div>
-      )}
-
-      <img
-        src={post && post.image}
-        alt={post && post.title}
-        className='mt-10 p-3 max-h-[600px] w-[500px] object-cover mx-auto'
-      />
-      <div className='flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl text-xs'>
-        <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
-        <span className='italic'>
-          {post && (post.content.length / 1000).toFixed(0)} mins read
-        </span>
       </div>
-      <div
-        className='p-3 max-w-2xl mx-auto w-full post-content text-left'
-        dangerouslySetInnerHTML={{ __html: post && post.content }}
-      ></div>
-
-      <div className='p-3 max-w-2xl mx-auto w-full text-center justify-center'>
-        <h2 className='text-lg font-semibold'>Rating post</h2>
-        <Rating size="md" className='justify-center'>
-          {[...Array(Math.floor(post.rating))].map((_, index) => (
-            <Rating.Star key={index} filled />
-          ))}
-          {post.rating % 1 >= 0.5 ? <Rating.Star halfFilled /> : null}
-          {[...Array(5 - Math.ceil(post.rating))].map((_, index) => (
-            <Rating.Star key={index + Math.ceil(post.rating)} filled={false} />
-          ))}
-          <p className="ml-2 text-md font-medium">
-            {post.rating ? post.rating : 0.0}
-          </p>
-          <p className='text-md font-medium'>/5</p>
-        </Rating>
-      </div>
-
-      {post.status === "approved" && (
-        <div className='p-3 max-w-2xl mx-auto w-full text-center flex justify-center'>
-          <h2 className='text-lg font-semibold mr-4'>Bài viết có hữu ích không?</h2>
-          <Rating size="md">
-            {Array.from({ length: 5 }, (_, index) => (
-              <Rating.Star
-                key={index}
-                filled={index < userRating}
-                onClick={() => handleRatingChange(index + 1)}
-              />
-            ))}
-          </Rating>
-        </div>
-      )}
-      {post.status === approvedPosts && (
-        <CommentSection postId={post._id} />
-
-      )}
-
-      <div className='max-w-4xl mx-auto w-full'>
-        <CallToAction />
-      </div>
-
-      <div className='flex flex-col justify-center items-center mb-5'>
-        <h1 className='text-xl mt-5'>Recent articles</h1>
-        <div className='flex flex-wrap gap-5 mt-5 justify-center'>
-          {recentPosts &&
-            recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
-        </div>
-      </div>
-    </main>
+    </div>
   );
 }

@@ -69,13 +69,14 @@ export default function DashPosts() {
       if (!res.ok) {
         console.log(data.message);
       } else {
-        setUserPosts((prev) =>
-          prev.filter((post) => post._id !== postIdToDelete)
-        );
         setDeleteSuccess("Deleted this posts successfully");
 
         setTimeout(() => {
           setShowModal(false);
+          setUserPosts((prev) =>
+            prev.filter((post) => post._id !== postIdToDelete)
+          );
+          setDeleteSuccess(null);
         }, 2000);
       }
     } catch (error) {

@@ -119,13 +119,14 @@ export default function DashPendingPosts() {
             if (!res.ok) {
                 console.log(data.message);
             } else {
-                setApprovedPosts((prev) =>
-                    prev.filter((post) => post._id !== postIdToDelete)
-                );
                 setDeleteSuccess("Deleted this posts successfully");
 
                 setTimeout(() => {
                     setShowModal(false);
+                    setApprovedPosts((prev) =>
+                        prev.filter((post) => post._id !== postIdToDelete)
+                    );
+                    setDeleteSuccess(null);
                 }, 2000);
             }
         } catch (error) {
@@ -139,7 +140,7 @@ export default function DashPendingPosts() {
             const data = await res.json();
             if (res.ok) {
                 setApprovedPosts(data.posts);
-                // 
+
                 setShowMore(true);
             }
         } catch (error) {
