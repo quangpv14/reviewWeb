@@ -24,6 +24,8 @@ export default function PostPage() {
   const [topRatedPosts, setTopRatedPosts] = useState([]);
   const [topPosts, setTopPosts] = useState([]);
 
+  const [suggestPosts, setSuggestPosts] = useState([]);
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -79,11 +81,24 @@ export default function PostPage() {
             setHasRated(data.hasRated);
           }
         } catch (error) {
-          console.error(error.message);
+          console.log(error.message);
         }
       }
     };
     checkUserRating();
+    const fetchSuggestPosts = async () => {
+      try {
+        const res = await fetch(`/api/rating/getposts/suggest/cbnf?userId=${currentUser._id}`);
+        const dataNbcf = await res.json();
+        if (res.ok) {
+          setSuggestPosts(dataNbcf.topThreePosts);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+
+    };
+    fetchSuggestPosts();
   }, [currentUser, post]);
 
   useEffect(() => {
@@ -270,6 +285,14 @@ export default function PostPage() {
             <div className='flex flex-wrap  gap-2 mt-5 justify-center'>
               {recentPosts &&
                 recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+            </div>
+          </div>
+
+          <div className='flex flex-col justify-center items-center mb-5'>
+            <h1 className='text-xl mt-5'>Recomend posts</h1>
+            <div className='flex flex-wrap  gap-2 mt-5 justify-center'>
+              {suggestPosts &&
+                suggestPosts.map((post) => <PostCard key={post._id} post={post} />)}
             </div>
           </div>
         </main>
