@@ -122,7 +122,7 @@ export default function DashComments() {
                   <Table.Cell className='w-[250px]'>
                     <Link
                       className='font-medium text-gray-900 dark:text-white'
-                      to={`/post/${comment.post.slug}`}
+
                     >
                       {comment.post && comment.post.title}
                     </Link>
