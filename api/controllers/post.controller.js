@@ -356,16 +356,18 @@ export const getsuggestposts = async (req, res, next) => {
 
 		//lấy ra bài viết hiện tại
 		const currentPost = await Post.find({ slug: postSlug });
-		const currentPostId = currentPost._id;
+		const currentPostId = currentPost[0]._id;
 
 		//1. Get post recent
 		// Lấy danh sách các bài viết mà user đã rating
-		const ratedPostIds = await Rating.find({ userId }).select('postId');
+		const ratedPostIds = await Rating.find({ userId: userId }).select('postId');
+
 		// Nếu postId hiện tại không nằm trong danh sách các bài viết đã rating thì thêm vào chuỗi
 		if (currentPost && !ratedPostIds.includes(currentPostId)) {
 			ratedPostIds.push(currentPostId);
 		}
 
+		//const ratedPostIdList = ratedPostIds.map((rating) => rating.postId.toString());
 		const recentposts = await Post.find({
 			_id: { $nin: ratedPostIds },
 			status: "approved",
@@ -376,8 +378,8 @@ export const getsuggestposts = async (req, res, next) => {
 
 		//2. Get 2 bài viết có rating cao nhất trong cùng category của bài post hiện tại
 		const topRatedPosts = await Post.find({
-			category: currentPost.category,
-			_id: { $ne: currentPostId },
+			category: currentPost[0].category,
+			_id: { $ne: currentPostId.toString() },
 			status: "approved",
 		})
 			.sort({ rating: -1 })
@@ -403,7 +405,7 @@ export const getsuggestposts = async (req, res, next) => {
 		// Loại trừ category của bài viết hiện tại khỏi danh sách
 		const filteredCategories = categoryRatings.filter(category => category._id !== currentPost.category);
 		// Lấy ra 6 category khác nhau có tổng số lượt đánh giá cao nhất
-		const topRatedCategories = filteredCategories.slice(0, 5);
+		const topRatedCategories = filteredCategories.slice(0, 6);
 
 		//4. Get ra top 10 bài viết có rating cao nhất theo theo tuần
 		const now = new Date();

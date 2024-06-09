@@ -21,6 +21,8 @@ export default function PostPage() {
   const [hasRated, setHasRated] = useState(false);
 
   const [topCategory, setTopCategory] = useState([]);
+  const [topRatedPosts, setTopRatedPosts] = useState([]);
+  const [topPosts, setTopPosts] = useState([]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -56,6 +58,8 @@ export default function PostPage() {
         if (res.ok) {
           setRecentPosts(data.recentposts);
           setTopCategory(data.topRatedCategories);
+          setTopRatedPosts(data.topRatedPosts);
+          setTopPosts(data.topSixPosts);
         }
       };
       fetchRecentPosts();
@@ -139,8 +143,8 @@ export default function PostPage() {
     );
   return (
     <div className='flex'>
-      <div className='w-1/6'>a</div>
-      <div className='w-2/3'>
+      <div className='w-[130px]'></div>
+      <div className='w-[1050px]'>
         <main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
           <div className='flex justify-center items-center'>
             {post && post.status === 'rejected' && (
@@ -203,9 +207,29 @@ export default function PostPage() {
             </span>
           </div>
           <div
-            className='p-3 max-w-2xl mx-auto w-full post-content text-left'
+            className='p-2 max-w-2xl mx-auto w-full post-content text-left'
             dangerouslySetInnerHTML={{ __html: post && post.content }}
           ></div>
+
+          <div className="text-center mb-2">
+            <h2 className="text-xl font-semibold italic underline">Các bài viết liên quan</h2>
+          </div>
+          <div className="flex flex-col items-center">
+            {topRatedPosts && topRatedPosts.map((item, index) => (
+              <Link
+                key={index}
+                to={`/post/${item && item.slug}`}
+                className="mt-2 flex items-center p-2  rounded-lg w-full max-w-md"
+              >
+                <div className="flex">
+                  <span className="mr-2 text-gray-500 font-bold">{index + 1}.</span>
+                  <div className="text-gray-700 text-base font-medium italic underline">
+                    {item && item.title}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
 
           <div className='p-3 max-w-2xl mx-auto w-full text-center justify-center mb-3'>
             <h2 className='text-lg font-semibold'>Post Rating</h2>
@@ -243,20 +267,20 @@ export default function PostPage() {
 
           <div className='flex flex-col justify-center items-center mb-5'>
             <h1 className='text-xl mt-5'>Recent articles</h1>
-            <div className='flex flex-wrap gap-1 mt-5 justify-center'>
+            <div className='flex flex-wrap  gap-2 mt-5 justify-center'>
               {recentPosts &&
                 recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
             </div>
           </div>
         </main>
       </div>
-      <div className='w-1/6 mt-[200px]'>
+      <div className='w-[350px] mt-[200px]'>
         <div className='text-xl mb-3 text-center font-bold'>Xu hướng</div>
-        <div className='grid grid-cols-2'>
+        <div className='grid grid-cols-3'>
           {topCategory && topCategory.map((item, index) =>
             <Link
               to={`/search?category=${item && item._id}`}
-              className='self-center mt-1 flex items-center justify-center p-1'
+              className='self-center mt-2 flex items-center justify-center'
             >
               <Button color='gray' pill size='xs'>
                 {item && item._id}
@@ -264,6 +288,38 @@ export default function PostPage() {
             </Link>
           )}
         </div>
+        <div className="text-xl mb-3 text-center font-bold mt-[100px]">
+          Top các bài viết theo tuần
+        </div>
+        {topPosts && topPosts.map((item, index) => (
+          <Link
+            key={index}
+            to={`/post/${item && item.slug}`}
+            className="self-center mt-4"
+          >
+            <div className="flex">
+              <div className='w-1/10 mb-5'>
+                <Link to={`/post/${item && item.slug}`}>
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-20 h-20 object-cover bg-gray-500 rounded-md mr-4"
+                  />
+                </Link>
+              </div>
+              <div className="w-3/4 text-gray-700 font-medium italic underline">
+                {item && item.title}
+                <div class="flex items-center">
+                  <svg class="w-4 h-4 text-yellow-300 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                  </svg>
+                  <p class="ms-2 text-sm text-gray-900 dark:text-white">{item.rating.toFixed(2)}/5</p>
+
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
