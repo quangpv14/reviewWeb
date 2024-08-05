@@ -19,6 +19,9 @@ import YourPost from './pages/YourPost';
 import MyPosts from './pages/Projects';
 import ApprovedPost from './components/ApprovedPost';
 import UpdatePostAdmin from './pages/UpdatePostAdmin';
+import ProductByCategory from './pages/ProductByCategory';
+import ProductPage from './pages/ProductPage';
+import Compare from './pages/Compare';
 
 export default function App() {
   return (
@@ -31,6 +34,11 @@ export default function App() {
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-up' element={<SignUp />} />
         <Route path='/search' element={<Search />} />
+        <Route path='/productbycategory/:categoryName' element={<ProductByCategory />} />
+        <Route path='/product/:productId' element={<ProductPage />} />
+        <Route path='/compare/:productId' element={<Compare />} />
+
+
         <Route element={<PrivateRoute />}>
           <Route path='/dashboard' element={<Dashboard />} />
 

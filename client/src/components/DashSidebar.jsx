@@ -7,6 +7,7 @@ import {
   HiAnnotation,
   HiChartPie,
 } from 'react-icons/hi';
+import { GrTechnology } from "react-icons/gr";
 import { BiSolidCategory } from "react-icons/bi";
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -48,7 +49,7 @@ export default function DashSidebar() {
   };
 
   return (
-    <Sidebar className='w-full md:w-56'>
+    <Sidebar className='w-full md:w-59'>
       <Sidebar.Items>
         <Sidebar.ItemGroup className='flex flex-col gap-1'>
           {currentUser && currentUser.isAdmin && (
@@ -75,6 +76,37 @@ export default function DashSidebar() {
               Profile
             </Sidebar.Item>
           </Link>
+
+          {currentUser.isAdmin && (
+            <>
+              <Sidebar.Collapse
+                icon={GrTechnology}
+                label="Products Management"
+                as='div'
+              >
+                <Link to='/dashboard?tab=product'>
+                  <Sidebar.Item
+                    style={tab === 'product' ? selectedButtonStyle : {}}
+                    active={tab === 'product'}
+                    as='div'
+                  >
+                    Create Product
+                  </Sidebar.Item>
+                </Link>
+                {/* <Link to='/dashboard?tab=publishedposts'>
+                  <Sidebar.Item
+                    style={tab === 'publishedposts' ? selectedButtonStyle : {}}
+                    active={tab === 'publishedposts'}
+                    as='div'
+                  >
+                    All Product
+                  </Sidebar.Item>
+                </Link> */}
+              </Sidebar.Collapse>
+            </>
+
+          )}
+
           {currentUser.isAdmin && (
             <>
               <Sidebar.Collapse

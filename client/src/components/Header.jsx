@@ -7,6 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
+import { IoIosNotifications } from "react-icons/io";
+
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -75,6 +77,7 @@ export default function Header() {
         <AiOutlineSearch />
       </Button>
       <div className='flex gap-2 md:order-2'>
+        <IoIosNotifications className='w-6 h-6 mt-2 items-center' />
         {currentUser && currentUser.isAdmin && (
           <Dropdown inline className='mr-5'>
             <Link to={'/dashboard?tab=dash'}>

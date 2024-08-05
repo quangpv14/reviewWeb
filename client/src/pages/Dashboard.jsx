@@ -10,6 +10,7 @@ import DashboardComp from '../components/DashboardComp';
 import DashPublishedPosts from '../components/DashPublishedPost';
 import DashPendingPosts from '../components/DashPendingPost';
 import DashRejectedPosts from '../components/DashRejectedPost';
+import DashProduct from '../components/DashProduct';
 //import ApprovedPost from '../components/ApprovedPost';
 import DashAuthor from '../components/DashAuthor';
 
@@ -25,12 +26,14 @@ export default function Dashboard() {
   }, [location.search]);
   return (
     <div className='min-h-screen flex flex-col md:flex-row'>
-      <div className='md:w-56'>
+      <div className='md:w-59'>
         {/* Sidebar */}
         <DashSidebar />
       </div>
       {/* profile... */}
       {tab === 'profile' && <DashProfile />}
+      {/* product... */}
+      {tab === 'product' && <DashProduct />}
       {/* posts... */}
       {tab === 'posts' && <DashPosts />}
       {/* published posts... */}

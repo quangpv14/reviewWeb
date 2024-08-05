@@ -7,6 +7,7 @@ import postRoutes from './routes/post.route.js';
 import commentRoutes from './routes/comment.route.js';
 import categoryRoutes from './routes/category.route.js';
 import ratingPostRoutes from './routes/ratingpost.route.js';
+import productRoutes from './routes/product.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 
@@ -38,6 +39,7 @@ app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/rating', ratingPostRoutes);
+app.use('/api/product', productRoutes);
 
 app.use(express.static(path.join(__dirname, '/client/dist')));
 

@@ -136,6 +136,7 @@ export default function DashRejectedPosts() {
             if (!res.ok) {
                 console.log(data.message);
             } else {
+                setDeleteSuccess("Deleted this posts successfully");
                 setTimeout(() => {
                     setShowModal(false);
                     setRejectedPosts((prev) =>
