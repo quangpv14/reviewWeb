@@ -22,6 +22,7 @@ import UpdatePostAdmin from './pages/UpdatePostAdmin';
 import ProductByCategory from './pages/ProductByCategory';
 import ProductPage from './pages/ProductPage';
 import Compare from './pages/Compare';
+import CreateNewPost from './pages/CreateNewPost';
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
         <Route path='/update-post/:postId' element={<UpdatePost />} />
         <Route path='/my-posts' element={<MyPosts />} />
         <Route path='/your-posts' element={<YourPost />} />
+        <Route path='/create-new-post' element={<CreateNewPost />} />
         <Route path='/faqs' element={<FAQs />} />
         <Route path='/changepassword' element={<ChangePassWord />} />
         <Route path='/post/:postSlug' element={<PostPage />} />

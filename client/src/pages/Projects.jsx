@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import PostDetail from '../components/PostDetail';
-import CreatePost from '../pages/CreatePost';
 import { Button } from 'flowbite-react';
 
 export default function MyPosts() {
@@ -62,13 +62,6 @@ export default function MyPosts() {
     }
   }, [currentUser]);
 
-  // const handleShowMore = () => {
-  //   const currentLength = displayedPosts.length;
-  //   const morePosts = posts.slice(currentLength, currentLength + 8);
-  //   setDisplayedPosts([...displayedPosts, ...morePosts]);
-  //   setShowMore(currentLength + 8 < posts.length);
-  // };
-
   const handleShowMore = (type) => {
     if (type === 'approved') {
       const currentLength = displayedApprovedPosts.length;
@@ -126,9 +119,16 @@ export default function MyPosts() {
         <div className='pr-10 mr-10' color="success">
           {
             currentUser && !currentUser?.isBlock && (
-              <Button color="success" size="lg" className='w-100' onClick={openDialog}>
-                New
-              </Button>)
+              <>
+                <Link
+                  to={`/create-new-post`}
+                >
+                  <Button color="success" size="lg" className='w-100'>
+                    New
+                  </Button>
+                </Link>
+              </>
+            )
           }
         </div>
 
@@ -200,7 +200,7 @@ export default function MyPosts() {
         )}
 
       </div>
-      <CreatePost isOpen={isDialogOpen} onClose={closeDialog} />
+
     </div>
   );
 }

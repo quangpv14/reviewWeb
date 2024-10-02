@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button, Tooltip } from 'flowbite-react';
+import CommentProduct from '../components/CommentProduct';
 import { FaWeight, FaMicrochip, FaMobileAlt, FaCamera } from 'react-icons/fa';
 import { FaCalendarDays } from "react-icons/fa6";
 import { GrSystem } from "react-icons/gr";
@@ -12,12 +13,16 @@ import { IoEyeSharp } from "react-icons/io5";
 import { MdOutlineCompare } from "react-icons/md";
 import { BsFillChatSquareTextFill } from "react-icons/bs";
 import { BsImage } from "react-icons/bs";
-
+import { TbListDetails } from "react-icons/tb";
+import ProductDetail from "../components/ProductDetail";
+import { SlArrowRightCircle } from "react-icons/sl";
 
 
 export default function ProductByCategory() {
     const { productId } = useParams();
+    const [categoryName, setCategoryName] = useState('');
     const [product, setProduct] = useState([]);
+    const [relatedDevice, setRelateDevice] = useState([]);
     const [categories, setCategories] = useState('');
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -44,6 +49,7 @@ export default function ProductByCategory() {
                 const data = await res.json();
                 if (res.ok) {
                     setProduct(data.product);
+                    setCategoryName(data.product[0].categoryName);
                 }
             } catch (error) {
                 console.log(error.message);
@@ -51,6 +57,23 @@ export default function ProductByCategory() {
         };
         fetchProductsByID();
     }, [productId]);
+
+    useEffect(() => {
+        const fetchRelateDeviceByCategory = async () => {
+            if (product.length > 0) {
+                try {
+                    const res = await fetch(`/api/product/getrelatedevicebycategory?categoryName=${product[0].category}`);
+                    const data = await res.json();
+                    if (res.ok) {
+                        setRelateDevice(data.products);
+                    }
+                } catch (error) {
+                    console.log(error.message);
+                }
+            }
+        };
+        fetchRelateDeviceByCategory();
+    }, [product]);
 
     const getStorageSummary = (internal, i) => {
         if (!internal) return '';
@@ -61,6 +84,13 @@ export default function ProductByCategory() {
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
+    };
+
+    const scrollComment = () => {
+        const firstHeaderElement = document.getElementById('comment-container');
+        if (firstHeaderElement) {
+            firstHeaderElement.scrollIntoView({ behavior: 'smooth' });
+        }
     };
 
     return (
@@ -92,7 +122,7 @@ export default function ProductByCategory() {
                     {product.length > 0 && (
                         <>
                             <div className='w-3/4 ml-10 w-auto'>
-                                <div className=' w-full font-medium'>
+                                <div className='w-full font-medium'>
                                     <div className='flex items-center text-white text-4xl font-bold w-[900px] bg-gray-500 p-1' >
                                         {product[0].category ? product[0].category.charAt(0).toUpperCase() + product[0].category.slice(1) : ''} {product[0].title}
                                     </div>
@@ -166,9 +196,9 @@ export default function ProductByCategory() {
                                 </div>
                                 <div className='grid grid-cols-5 bg-gray-400 text-white h-11 font-bold items-center'>
                                     <button className='text-lg hover:bg-red-600 w-full h-full'><IoEyeSharp className='inline mb-1 mr-1' />REVIEW</button>
-                                    <button className='text-lg hover:bg-red-600 w-full h-full'>Spec</button>
-                                    <button className='text-lg hover:bg-red-600 w-full h-full'><BsFillChatSquareTextFill className='inline mb-1 mr-1' />Opinion</button>
-                                    <button className='text-lg hover:bg-red-600 w-full h-full'>Images</button>
+                                    <button className='text-lg hover:bg-red-600 w-full h-full'><TbListDetails className='inline mb-1 mr-1' /><a href="#">SPEC</a></button>
+                                    <button className='text-lg hover:bg-red-600 w-full h-full' onClick={scrollComment}><BsFillChatSquareTextFill className='inline mb-1 mr-1' />OPINIONS</button>
+                                    <button className='text-lg hover:bg-red-600 w-full h-full'><BsImage className='inline mb-1 mr-1' />PICTURES</button>
                                     <Link to={`/compare/${productId}`}
                                         className='w-full h-full flex items-center justify-center hover:bg-red-600'>
                                         <button className='text-lg'>
@@ -185,7 +215,33 @@ export default function ProductByCategory() {
             <div className='max-w-7xl mx-auto p-3 flex flex-col gap-8'>
                 <div className='flex'>
                     <div className='w-1/4 w-max-full'>
-                        <h3 className='font-bold'>RELATED DEVICES</h3>
+                        <h3 className='font-bold font-lg mb-2'>RELATED DEVICES</h3>
+                        <div>
+                            {relatedDevice.length > 0 ? (
+                                <div className='grid grid-cols-2 gap-3'>
+                                    {relatedDevice.map((product) => (
+                                        <ProductDetail key={product._id} product={product} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className='text-center'>No related device.</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <div className=' text-right font-bold hover:text-red-600 mt-2'>
+                                {product && product.map((item, index) =>
+                                    <Link
+                                        to={`/productbycategory/${item.category}`}
+                                    >
+                                        More related devices
+                                        <SlArrowRightCircle className='inline ml-1' />
+                                    </Link>
+                                )}
+                            </div>
+
+                        </div>
+
                     </div>
                     {product.length > 0 && (
                         <>
@@ -442,11 +498,15 @@ export default function ProductByCategory() {
                 <div className='flex'>
                     <div className='w-1/4 w-max-full'></div>
                     <div className='w-3/4 ml-10'>
-                        <p className='ml-10'>
+                        <p className='ml-10 mb-10'>
                             <strong>Disclaimer.</strong>
                             {" We cannot guarantee that the information on this page is 100% correct. "}
                             <a className='underline' href="#">Read more</a>
                         </p>
+                        {/* Comment */}
+                        <div className='ml-3 mt-3'>
+                            <CommentProduct postId={productId} />
+                        </div>
                     </div>
                 </div>
             </div>

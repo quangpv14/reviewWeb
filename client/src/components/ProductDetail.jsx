@@ -16,7 +16,7 @@ export default function ProductDetail({ product }) {
                         </Link>
                     </div>
                 </div>
-                <div className='flex items-center justify-center text-center bg-gray-100 h-[39px] rounded-lg hover:bg-red-600 hover:text-white'>
+                <div className='flex items-center justify-center text-center bg-gray-100 h-[46px] rounded-lg hover:bg-red-600 hover:text-white'>
                     <Link
                         to={`/product/${product._id}`}
                         className='text-lg font-semibold'

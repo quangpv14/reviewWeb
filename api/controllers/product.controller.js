@@ -57,8 +57,11 @@ export const deleteProduct = async (req, res, next) => {
 export const getProductByCategory = async (req, res, next) => {
     try {
         const categoryName = req.query.categoryName;
-        const sortDirection = req.query.order === "asc" ? 1 : -1;
+        const startIndex = parseInt(req.query.startIndex) || 0;
         const products = await Product.find({ category: categoryName })
+            .sort({ createdAt: -1 })
+            .skip(startIndex)
+            .limit(15);
 
         res.status(200).json({ products: products });
     } catch (error) {
@@ -69,7 +72,6 @@ export const getProductByCategory = async (req, res, next) => {
 export const getProductById = async (req, res, next) => {
     try {
         const productId = req.query.productId;
-        const sortDirection = req.query.order === "asc" ? 1 : -1;
         const product = await Product.find({ _id: productId })
 
         res.status(200).json({ product: product });
@@ -104,5 +106,34 @@ export const getSearchProducts = async (req, res, next) => {
         res.status(200).json({ products: products });
     } catch (error) {
         next(error);
+    }
+};
+
+export const getRelatedDeviceByProduct = async (req, res, next) => {
+    try {
+        const categoryName = req.query.categoryName;
+        const products = await Product.find({ category: categoryName }).sort({ createdAt: -1 }).limit(6);
+        res.status(200).json({ products: products });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getAllProducts = async (req, res, next) => {
+    try {
+        const products = await Product.find()
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: "A list of all products",
+            products: products,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "Server error. Please try again.",
+            error: err.message,
+        });
     }
 };

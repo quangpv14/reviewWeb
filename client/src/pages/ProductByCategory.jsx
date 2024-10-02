@@ -10,6 +10,8 @@ export default function ProductByCategory() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState('');
     const [clickedIndex, setClickedIndex] = useState(null);
+    const [showMore, setShowMore] = useState(true);
+
 
     const handleButtonClick = (index) => {
         setClickedIndex(index);
@@ -37,6 +39,9 @@ export default function ProductByCategory() {
                 const data = await res.json();
                 if (res.ok) {
                     setProducts(data.products);
+                    if (data.products.length < 15) {
+                        setShowMore(false);
+                    }
                 }
             } catch (error) {
                 console.log(error.message);
@@ -44,6 +49,22 @@ export default function ProductByCategory() {
         };
         fetchProductsByCategory();
     }, [categoryName]);
+
+    const handleShowMore = async () => {
+        const startIndex = products.length;
+        try {
+            const res = await fetch(`/api/product/getproductsbycategory?startIndex=${startIndex}&categoryName=${categoryName}`);
+            const data = await res.json();
+            if (res.ok) {
+                setProducts((prev) => [...prev, ...data.products]);
+                if (data.products.length < 15) {
+                    setShowMore(false);
+                }
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
     return (
         <div>
@@ -105,15 +126,28 @@ export default function ProductByCategory() {
                         </div>
                     </div>
                     <div className='w-3/4 ml-10'>
-                        <div className='flex'>
+                        <div>
                             {products.length > 0 ? (
                                 <>
-                                    <div className='grid grid-cols-5 gap-4'>
+                                    <div className='flex'>
+                                        <div className='grid grid-cols-5 gap-4'>
 
-                                        {products.map((product) => (
-                                            <ProductDetail key={product._id} product={product} />
-                                        ))}
+                                            {products.map((product) => (
+                                                <ProductDetail key={product._id} product={product} />
+                                            ))}
 
+                                        </div>
+
+                                    </div>
+                                    <div>
+                                        {showMore && (
+                                            <button
+                                                onClick={handleShowMore}
+                                                className='w-full text-teal-500 self-center text-sm py-7'
+                                            >
+                                                Show more
+                                            </button>
+                                        )}
                                     </div>
                                 </>
                             ) : (

@@ -11,6 +11,8 @@ import {
     getProductById,
     getInitProducts,
     getSearchProducts,
+    getRelatedDeviceByProduct,
+    getAllProducts,
 } from "../controllers/product.controller.js";
 
 const router = express.Router();
@@ -29,7 +31,9 @@ router.put(
     updateProduct
 );
 
+router.get("/getallproducts", getAllProducts);
 router.get("/getproductsbycategory", getProductByCategory);
+router.get("/getrelatedevicebycategory", getRelatedDeviceByProduct);
 router.get("/getproductsbyid", getProductById);
 router.get("/getinitproducts", getInitProducts);
 router.get("/search", getSearchProducts);
