@@ -458,7 +458,7 @@ export default function Compare() {
 
                     <div className='w-3/4 ml-10 w-auto'>
                         <div className='relative'>
-                            <img className="h-[250px] w-[900px] bg-opacity-50" src="https://thakorlalhiralal.com/images/expert_img02.jpg" alt="Compare" />
+                            <img className="h-[250px] w-[900px] bg-opacity-50" src="https://fdn.gsmarena.com/imgroot/static/headers/compare-hlr.jpg" alt="Compare" />
                             <div className='absolute bottom-10 left-5 flex text-white text-5xl font-bold p-2' style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
                                 Compare specs
                             </div>

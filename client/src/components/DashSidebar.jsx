@@ -93,15 +93,15 @@ export default function DashSidebar() {
                     Create Product
                   </Sidebar.Item>
                 </Link>
-                {/* <Link to='/dashboard?tab=publishedposts'>
+                <Link to='/dashboard?tab=allproducts'>
                   <Sidebar.Item
-                    style={tab === 'publishedposts' ? selectedButtonStyle : {}}
-                    active={tab === 'publishedposts'}
+                    style={tab === 'allproducts' ? selectedButtonStyle : {}}
+                    active={tab === 'allproducts'}
                     as='div'
                   >
-                    All Product
+                    All Products
                   </Sidebar.Item>
-                </Link> */}
+                </Link>
               </Sidebar.Collapse>
             </>
 

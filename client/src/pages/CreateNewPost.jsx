@@ -235,7 +235,7 @@ export default function CreateNewPost() {
 
                     </div>
 
-                    <div className='flex items-center w-full'>
+                    {/* <div className='flex items-center w-full'>
                         <div className='w-1/2'>
                             <Select
                                 id="productLineSelect"
@@ -272,7 +272,7 @@ export default function CreateNewPost() {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
                         <FileInput
@@ -353,7 +353,7 @@ export default function CreateNewPost() {
                                     <Button color="success" className='w-[120px] mb-4'
                                         onClick={() => {
                                             setShowMessageSuccess(false);
-                                            onClose();
+                                            navigate('/my-posts');
                                         }}
                                     >
                                         {"Okay"}

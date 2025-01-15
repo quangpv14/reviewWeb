@@ -1,4 +1,4 @@
-import { Button, Spinner, Modal } from 'flowbite-react';
+import { Button, Spinner, Modal, Textarea } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
@@ -19,6 +19,10 @@ export default function ApprovedPost() {
     const [tableOfContents, setTableOfContents] = useState([]);
     const approvedPosts = "approved";
     const { currentUser } = useSelector((state) => state.user);
+
+    const [showModalReject, setShowModalReject] = useState(false);
+    const [reason, setReason] = useState('');
+
     const navigate = useNavigate();
     useEffect(() => {
         const fetchPost = async () => {
@@ -95,7 +99,7 @@ export default function ApprovedPost() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ slug: postSlug, status: 'rejected' }),
+                body: JSON.stringify({ slug: postSlug, status: 'rejected', reason: reason }),
             });
 
             const data = await response.json();
@@ -120,7 +124,7 @@ export default function ApprovedPost() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ slug: postSlug, status: 'approved' }),
+                body: JSON.stringify({ slug: postSlug, status: 'approved', reason: reason }),
             });
 
             const data = await response.json();
@@ -153,7 +157,7 @@ export default function ApprovedPost() {
 
                 {/* Phần bên phải */}
                 <div className='flex items-center space-x-4'>
-                    <button className='bg-red-500 text-white px-4 py-2 rounded' onClick={handleRejectedPost}>Từ chối</button>
+                    <button className='bg-red-500 text-white px-4 py-2 rounded' onClick={() => setShowModalReject(true)}>Từ chối</button>
                     <button className='bg-green-500 text-white px-4 py-2 rounded' onClick={handleApprovedPost}>Phê duyệt</button>
                 </div>
             </div>
@@ -190,7 +194,7 @@ export default function ApprovedPost() {
             <img
                 src={post && post.image}
                 alt={post && post.title}
-                className='mt-10 p-3 max-h-[600px] w-[500px] object-cover mx-auto'
+                className='p-3 max-h-[300px] w-[300px] object-cover mx-auto'
             />
             <div className='flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl text-xs'>
                 <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
@@ -292,6 +296,29 @@ export default function ApprovedPost() {
                     </div>
                 </Modal.Body>
             </Modal>
+
+            <Modal show={showModalReject} onClose={() => setShowModalReject(false)}>
+                <Modal.Header className='p-3 text-2xl'>
+                    Confirm rejection
+                </Modal.Header>
+                <Modal.Body>
+                    <Textarea
+                        placeholder="Enter the reason for rejection..."
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        rows={4}
+                    />
+                </Modal.Body>
+                <Modal.Footer className='p-2 justify-center'>
+                    <Button color="failure" onClick={handleRejectedPost}>
+                        Confirm
+                    </Button>
+                    <Button color="gray" onClick={() => setShowModalReject(false)}>
+                        Cancel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </main>
     );
 }

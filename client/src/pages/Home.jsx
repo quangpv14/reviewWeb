@@ -40,8 +40,8 @@ export default function Home() {
 
   return (
     <div>
-      <div className='flex flex-col gap-6 p-28 px-3 max-w-7xl mx-auto '>
-        <h1 className='text-3xl font-bold lg:text-6xl'>Welcome to Web Review</h1>
+      <div className='max-w-6xl mx-auto p-3 flex flex-col gap-8 py-7'>
+        <h1 className='text-3xl font-bold lg:text-6xl'>Product Choice Made Easy</h1>
         <p className='text-gray-500 text-xs sm:text-sm'>
           Here you'll discover an array of articles and tutorials covering product reviews,
           offering insights into various products and services available online.
@@ -77,7 +77,7 @@ export default function Home() {
           </div>
 
           <div className='w-3/4 ml-10 w-auto'>
-            <img className="h-[222px] w-[500px]" src="https://cdn.tgdd.vn/Files/2018/08/12/1108714/technology_800x450.jpg" alt="Product Review" />
+            <img className="h-[270px] w-[670px]" src="https://cdn.tgdd.vn/Files/2018/08/12/1108714/technology_800x450.jpg" alt="Product Review" />
           </div>
 
         </div>

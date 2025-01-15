@@ -112,7 +112,7 @@ export default function ProductByCategory() {
                                 alt="Background pattern"
                             />
                             <div className='text-white text-4xl font-bold' style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
-                                {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} Phones
+                                {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
                             </div>
                         </div>
                     </div>
@@ -121,9 +121,9 @@ export default function ProductByCategory() {
             <div className='max-w-7xl mx-auto p-3 flex flex-col gap-8 py-7'>
                 <div className='flex'>
                     <div className='w-1/4 p-3'>
-                        <div className='ml-5 font-bold text-lg'>
+                        {/* <div className='ml-5 font-bold text-lg'>
                             {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} Reviews
-                        </div>
+                        </div> */}
                     </div>
                     <div className='w-3/4 ml-10'>
                         <div>

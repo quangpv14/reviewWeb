@@ -236,13 +236,13 @@ export default function PostPage() {
                   </div>
                 </div>
                 <div className='absolute bottom-6 left-0 w-full flex mb-10'>
-                  <img
+                  {/* <img
                     className='ml-5'
                     src="https://fdn.gsmarena.com/vv/assets12/i/pattern-diag-dark-2.gif"
                     alt="Background pattern"
-                  />
+                  /> */}
                   <div className='text-white text-4xl font-bold' style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
-                    {post && post.title} Review
+                    {post && post.title}
                   </div>
                 </div>
                 <div className='absolute w-full bottom-0 h-[50px]'>

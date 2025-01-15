@@ -13,6 +13,7 @@ import DashRejectedPosts from '../components/DashRejectedPost';
 import DashProduct from '../components/DashProduct';
 //import ApprovedPost from '../components/ApprovedPost';
 import DashAuthor from '../components/DashAuthor';
+import DashAllProducts from '../components/DashAllProducts';
 
 export default function Dashboard() {
   const location = useLocation();
@@ -34,6 +35,9 @@ export default function Dashboard() {
       {tab === 'profile' && <DashProfile />}
       {/* product... */}
       {tab === 'product' && <DashProduct />}
+      {/* all products... */}
+      {tab === 'allproducts' && <DashAllProducts />}
+
       {/* posts... */}
       {tab === 'posts' && <DashPosts />}
       {/* published posts... */}

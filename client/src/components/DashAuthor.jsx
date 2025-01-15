@@ -207,7 +207,6 @@ export default function DashAuthor() {
                             <Table.HeadCell className='w-[200px]'>Email</Table.HeadCell>
                             <Table.HeadCell className='w-[150px]'>Role</Table.HeadCell>
                             <Table.HeadCell className='w-[200px]'>Action</Table.HeadCell>
-                            <Table.HeadCell></Table.HeadCell>
 
 
                         </Table.Head>
@@ -249,7 +248,6 @@ export default function DashAuthor() {
                                             </Dropdown.Item>
                                         </Dropdown>
                                     </Table.Cell>
-                                    <Table.Cell></Table.Cell>
                                 </Table.Row>
                             </Table.Body>
                         ))}

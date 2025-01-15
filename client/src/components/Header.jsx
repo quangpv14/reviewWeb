@@ -8,6 +8,7 @@ import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 import { IoIosNotifications } from "react-icons/io";
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 
 export default function Header() {
@@ -18,6 +19,9 @@ export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
   const [searchTerm, setSearchTerm] = useState('');
+  const [countNotify, setCountNotify] = useState(0);
+  const [notifications, setNotifications] = useState([]);  // Danh sách thông báo
+  const [showDropdownNotify, setShowDropdownNotify] = useState(false);  // Hiển thị dropdown
   //const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
@@ -27,6 +31,12 @@ export default function Header() {
       setSearchTerm(searchTermFromUrl);
     }
   }, [location.search]);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchUnreadNotificationsCount();
+    }
+  }, [currentUser]);
 
   const handleSignout = async () => {
     try {
@@ -50,6 +60,63 @@ export default function Header() {
     urlParams.set('searchTerm', searchTerm);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
+  };
+
+  const fetchUnreadNotificationsCount = async () => {
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/notification/getcountnotify?userId=${currentUser._id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setCountNotify(data.notify);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    if (!currentUser) return;
+
+    try {
+      const res = await fetch(`/api/notification/update/${currentUser._id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setNotifications(data.notify);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleNotificationClick = async () => {
+    await fetchNotifications();
+    await fetchUnreadNotificationsCount();
+    setShowDropdownNotify(!showDropdownNotify);  // Toggle dropdown
+  };
+
+  const formatTime = (time) => {
+    const now = new Date();
+    const notificationTime = new Date(time);
+    const diff = now - notificationTime; // Lấy chênh lệch thời gian
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days} ngày trước`;
+    } else if (hours > 0) {
+      return `${hours} giờ trước`;
+    } else if (minutes > 0) {
+      return `${minutes} phút trước`;
+    } else {
+      return `${seconds} giây trước`;
+    }
   };
 
   return (
@@ -77,7 +144,44 @@ export default function Header() {
         <AiOutlineSearch />
       </Button>
       <div className='flex gap-2 md:order-2'>
-        <IoIosNotifications className='w-6 h-6 mt-2 items-center' />
+        <IoIosNotifications className='w-6 h-6 mt-2 items-center'
+          onClick={handleNotificationClick} />
+        {countNotify > 0 && (
+          <span className='absolute top-[10px] right-[210px] text-xs text-white bg-red-500 rounded-full w-5 h-5 flex items-center justify-center'>
+            {countNotify}
+          </span>
+        )}
+        {showDropdownNotify && (
+          <div className="absolute top-[64px] right-[120px] w-[250px] bg-white shadow-md rounded-md border p-2">
+            <div className="text-center font-semibold text-sm mb-2 bg-gray-100 p-2">Notifications</div>
+            {notifications.length > 0 ? (
+              notifications.map((notification, index) => (
+                <div className='p-2'>
+                  <div
+                    key={index}
+                    className="flex justify-between items-center cursor-pointer hover:bg-gray-100"
+                  >
+                    <span className='text-sm'>{notification.content}</span>
+                    <span>
+                      {notification.status ? (
+                        <FaCheckCircle className="text-green-500" />
+                      ) : (
+                        <FaTimesCircle className="text-red-500" />
+                      )}
+                    </span>
+
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {formatTime(notification.createdAt)}  {/* Hiển thị thời gian */}
+                  </div>
+                </div>
+
+              ))
+            ) : (
+              <div className="text-center p-2 text-sm">No new notifications</div>
+            )}
+          </div>
+        )}
         {currentUser && currentUser.isAdmin && (
           <Dropdown inline className='mr-5'>
             <Link to={'/dashboard?tab=dash'}>

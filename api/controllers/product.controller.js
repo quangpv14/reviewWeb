@@ -119,11 +119,18 @@ export const getRelatedDeviceByProduct = async (req, res, next) => {
     }
 };
 
+
 export const getAllProducts = async (req, res, next) => {
     try {
-        const products = await Product.find()
-            .sort({ createdAt: -1 });
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
 
+        const products = await Product.find()
+            .sort({ createdAt: -1 })
+            .skip(startIndex)
+            .limit(limit);
+
+        // Send response with the fetched products
         res.status(200).json({
             success: true,
             message: "A list of all products",

@@ -1,6 +1,7 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import Rating from "../models/ratingpost.model.js";
+import Notification from '../models/notification.model.js';
 import { errorHandler } from "../utils/error.js";
 import {
 	incrementTotalCount,
@@ -329,7 +330,7 @@ export const approvepost = async (req, res, next) => {
 			errorHandler(403, "You are not allowed to approve this post")
 		);
 	}
-	const { slug, status } = req.body;
+	const { slug, status, reason } = req.body;
 
 	try {
 
@@ -338,6 +339,21 @@ export const approvepost = async (req, res, next) => {
 		if (!post) {
 			return res.status(404).json({ message: 'Post not found' });
 		}
+
+		let content;
+		if (status === 'rejected') {
+			content = reason;
+		} else if (status === 'approved') {
+			content = `Bài viết "${post.title}" đã được phê duyệt thành công!`;
+		}
+
+		const notification = new Notification({
+			content, // Ghi lý do từ chối
+			userId: post.userId, // Assumed field for the post's author
+			postId: post._id,
+		});
+
+		await notification.save();
 
 		res.status(200).json({ status: post.status });
 	} catch (error) {
