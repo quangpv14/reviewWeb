@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button, Tooltip } from 'flowbite-react';
+import { Button, Tooltip, Modal } from 'flowbite-react';
 import CommentProduct from '../components/CommentProduct';
 import { FaWeight, FaMicrochip, FaMobileAlt, FaCamera } from 'react-icons/fa';
 import { FaCalendarDays } from "react-icons/fa6";
@@ -16,6 +16,7 @@ import { BsImage } from "react-icons/bs";
 import { TbListDetails } from "react-icons/tb";
 import ProductDetail from "../components/ProductDetail";
 import { SlArrowRightCircle } from "react-icons/sl";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 
 export default function ProductByCategory() {
@@ -25,6 +26,9 @@ export default function ProductByCategory() {
     const [relatedDevice, setRelateDevice] = useState([]);
     const [categories, setCategories] = useState('');
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpandedReview, setIsExpandedReview] = useState(false);
+    const [isShowPicture, setIsShowPicture] = useState(false);
+    const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
         const fetchCategory = async () => {
@@ -75,6 +79,27 @@ export default function ProductByCategory() {
         fetchRelateDeviceByCategory();
     }, [product]);
 
+    const fetchReviews = async () => {
+        if (product.length > 0) {
+            try {
+                const res = await fetch(`/api/post/find/reviews?findtext=${product[0].title}`);
+                const data = await res.json();
+                if (res.ok) {
+                    setReviews(data.posts);
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+    };
+
+    const handleReviewClick = () => {
+        setIsExpandedReview(!isExpandedReview);
+        if (!isExpandedReview) {
+            fetchReviews();
+        }
+    };
+
     const getStorageSummary = (internal, i) => {
         if (!internal) return '';
         const storageValues = internal.split(',').map(item => item.trim().split(' ')[i])
@@ -85,6 +110,14 @@ export default function ProductByCategory() {
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
     };
+
+    const truncateStyle = {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: '330px', // Đặt chiều rộng tối đa
+        display: 'inline-block', // quan trọng nếu phần tử là inline
+    }
 
     const scrollComment = () => {
         const firstHeaderElement = document.getElementById('comment-container');
@@ -195,10 +228,13 @@ export default function ProductByCategory() {
 
                                 </div>
                                 <div className='grid grid-cols-5 bg-gray-400 text-white h-11 font-bold items-center'>
-                                    <button className='text-lg hover:bg-red-600 w-full h-full'><IoEyeSharp className='inline mb-1 mr-1' />REVIEW</button>
+                                    <button className='text-lg hover:bg-red-600 w-full h-full' onClick={handleReviewClick}><IoEyeSharp className='inline mb-1 mr-1' />REVIEW</button>
+
                                     <button className='text-lg hover:bg-red-600 w-full h-full'><TbListDetails className='inline mb-1 mr-1' /><a href="#">SPEC</a></button>
                                     <button className='text-lg hover:bg-red-600 w-full h-full' onClick={scrollComment}><BsFillChatSquareTextFill className='inline mb-1 mr-1' />OPINIONS</button>
-                                    <button className='text-lg hover:bg-red-600 w-full h-full'><BsImage className='inline mb-1 mr-1' />PICTURES</button>
+                                    <button className='text-lg hover:bg-red-600 w-full h-full'
+                                        onClick={() => setIsShowPicture(true)}>
+                                        <BsImage className='inline mb-1 mr-1' />PICTURES</button>
                                     <Link to={`/compare/${productId}`}
                                         className='w-full h-full flex items-center justify-center hover:bg-red-600'>
                                         <button className='text-lg'>
@@ -207,6 +243,22 @@ export default function ProductByCategory() {
                                         </button>
                                     </Link>
                                 </div>
+                                {isExpandedReview && (
+                                    <div className="dropdown-menu bg-gray-100 text-black absolute z-10 w-[360px] mt-1 p-2">
+                                        <div className="text-center font-semibold text-md bg-gray-300 p-1">Post Reviews</div>
+                                        {reviews.length > 0 ? (
+                                            reviews.map((review, index) => (
+                                                <div key={index} className="p-2 hover:bg-gray-200">
+                                                    <a href={`/post/${review.slug}`} className="hover:text-blue-600" style={truncateStyle}>
+                                                        {review.title}
+                                                    </a>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-2">No reviews found.</div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}
@@ -510,6 +562,40 @@ export default function ProductByCategory() {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                show={isShowPicture}
+                onClose={() => {
+                    setIsShowPicture(false);
+                }}
+                popup
+                size="3xl"
+            >
+                <Modal.Header className='border-b-2' />
+                <Modal.Body>
+                    <div className="text-center">
+                        <div className="flex flex-wrap justify-center gap-1">
+                            {product && product.length > 0 ? (
+                                product.map((item, index) => (
+                                    <div className='flex mt-2'>
+                                        <div className='flex items-center'><IoIosArrowBack className="h-8 w-8 rounded-full bg-gray-300 p-1" /></div>
+                                        <img
+                                            key={index}
+                                            src={item.image}
+                                            alt={`Product Image`}
+                                            className="max-w-xl object-contain"
+                                        />
+                                        <div className='flex items-center'><IoIosArrowForward className="h-8 w-8 rounded-full bg-gray-300 p-1" /></div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No images available.</p>
+                            )}
+                        </div>
+
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

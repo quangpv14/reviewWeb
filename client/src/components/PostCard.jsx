@@ -1,7 +1,25 @@
 import { Link } from 'react-router-dom';
 import { FaEdit } from "react-icons/fa";
+import Cookies from 'js-cookie';
 
 export default function PostCard({ post }) {
+  const updateCategoryAccess = (category) => {
+    const categoryAccess = Cookies.get('categoryAccess') ? JSON.parse(Cookies.get('categoryAccess')) : {};
+
+    if (!categoryAccess[category]) {
+      categoryAccess[category] = 1;
+    } else {
+      categoryAccess[category]++;
+    }
+
+    Cookies.set('categoryAccess', JSON.stringify(categoryAccess), { expires: 7 });
+  };
+
+  const handleReadArticle = () => {
+    // Cập nhật số lần truy cập vào category khi người dùng đọc bài viết
+    updateCategoryAccess(post.category);
+  };
+
   return (
     <div className='group relative w-full border border-teal-500 hover:border-2 h-[280px] overflow-hidden rounded-lg sm:w-[320px] transition-all'>
       <Link to={`/post/${post.slug}`}>
@@ -24,6 +42,7 @@ export default function PostCard({ post }) {
         <Link
           to={`/post/${post.slug}`}
           className='z-10 group-hover:bottom-0 absolute bottom-[-400px] left-0 right-0 border border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white transition-all duration-300 text-center py-2 rounded-md !rounded-tl-none m-2'
+          onClick={handleReadArticle}
         >
           Read article
         </Link>

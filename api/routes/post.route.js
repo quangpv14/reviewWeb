@@ -18,12 +18,14 @@ import {
 	approvepost,
 	filterPostByStatus,
 	getsuggestposts,
+	findPostReviews,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
 
 router.post("/create", verifyToken, verifyIsAdminOrNonBlockedUser, create);
 router.get("/getposts", getposts);
+router.get("/find/reviews", findPostReviews);
 router.get("/getallposts", verifyToken, getallposts);
 router.delete(
 	"/deletepost/:postId/:userId",

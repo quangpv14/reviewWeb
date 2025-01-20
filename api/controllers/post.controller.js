@@ -449,3 +449,18 @@ export const getsuggestposts = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const findPostReviews = async (req, res, next) => {
+	try {
+		const findtext = req.query.findtext;
+		const posts = await Post.find({
+			...(req.query.findtext && { title: { $regex: findtext.toString(), $options: 'i' } }),
+			...(req.query.category && { category: req.query.category }),
+			status: "approved",
+		}).sort({ createdAt: -1 });
+
+		res.status(200).json({ posts: posts });
+	} catch (error) {
+		next(error);
+	}
+};
